@@ -7,5 +7,12 @@ export default {
   publicRoom: '多人同步',
   currentRoom: '当前房间',
   syncHint: '你们的音乐已经逻辑耦合',
-  title: '一起听'
+  title: '一起听',
+  linked: '已连接',
+  sync: '同步',
+  endpoint: '端点',
+  save: '保存',
+  code: '代码',
+  quantumRoom: '量子空间',
+  disconnect: '断开连接'
 };
