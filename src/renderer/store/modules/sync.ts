@@ -18,7 +18,7 @@ export const useSyncStore = defineStore('sync', () => {
   const initSync = (targetRoomId: string, type: 'private' | 'public' = 'private') => {
     // 自动检测环境：如果是本地开发则用本地IP，否则可以手动指定
     const serverUrl = window.localStorage.getItem('SYNC_SERVER_URL') || 'http://192.168.124.3:3000';
-    
+
     socket.value = io(serverUrl, {
       query: { roomId: targetRoomId, userId: userId.value }
     });
@@ -34,15 +34,27 @@ export const useSyncStore = defineStore('sync', () => {
     // 监听来自他人的同步指令
     socket.value.on('apply_sync', async (data: any) => {
       console.log('[Sync] Receiving remote operation:', data.operation);
-
+      
       // 这里的逻辑需要小心处理，避免循环触发
       if (data.operation === 'play_music') {
         // 传入 isRemote = true，防止二次广播导致死循环
         await playerStore.handlePlayMusic(data.music, true, true);
+        
+        // 如果远端带了进度，进行对齐
+        if (data.data?.currentTime) {
+          setTimeout(() => {
+            const { audioService } = require('@/services/audioService');
+            audioService.seek(data.data.currentTime);
+          }, 500); // 稍微延迟确保歌曲已加载
+        }
       } else if (data.operation === 'pause') {
-        playerStore.handlePause();
+        playerStore.handlePause(true);
       } else if (data.operation === 'resume') {
-        playerStore.setIsPlay(true);
+        playerStore.setIsPlay(true, true);
+        if (data.data?.currentTime) {
+          const { audioService } = require('@/services/audioService');
+          audioService.seek(data.data.currentTime);
+        }
       }
     });
 
@@ -54,11 +66,19 @@ export const useSyncStore = defineStore('sync', () => {
   // 发送同步指令
   const sendSync = (operation: string, data: any) => {
     if (isSyncing.value && socket.value) {
+      // 附加当前进度
+      const { audioService } = require('@/services/audioService');
+      const currentSound = audioService.getCurrentSound();
+      const currentTime = currentSound?.seek() || 0;
+
       console.log('[Sync] Sending operation:', operation);
       socket.value.emit('sync_operation', {
         roomId: roomId.value,
         operation,
-        data,
+        data: {
+          ...data,
+          currentTime
+        },
         timestamp: Date.now()
       });
     }

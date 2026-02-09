@@ -47,18 +47,20 @@ export const usePlayerCoreStore = defineStore(
     /**
      * 设置播放状态
      */
-    const setIsPlay = (value: boolean) => {
+    const setIsPlay = (value: boolean, isRemote: boolean = false) => {
       isPlay.value = value;
       play.value = value;
       window.electron?.ipcRenderer.send('update-play-state', value);
 
-      // [HDLC Sync] 注入同步逻辑
-      import('./sync').then((m) => {
-        const syncStore = m.useSyncStore();
-        if (syncStore.isSyncing) {
-          syncStore.sendSync(value ? 'resume' : 'pause', {});
-        }
-      });
+      // [HDLC Sync] 注入同步逻辑，仅在非远端操作时发送
+      if (!isRemote) {
+        import('./sync').then((m) => {
+          const syncStore = m.useSyncStore();
+          if (syncStore.isSyncing) {
+            syncStore.sendSync(value ? 'resume' : 'pause', {});
+          }
+        });
+      }
     };
 
     /**
@@ -497,13 +499,13 @@ export const usePlayerCoreStore = defineStore(
     /**
      * 暂停播放
      */
-    const handlePause = async () => {
+    const handlePause = async (isRemote: boolean = false) => {
       try {
         const currentSound = audioService.getCurrentSound();
         if (currentSound) {
           currentSound.pause();
         }
-        setPlayMusic(false);
+        setPlayMusic(false, isRemote);
         userPlayIntent.value = false;
       } catch (error) {
         console.error('暂停播放失败:', error);
@@ -513,12 +515,12 @@ export const usePlayerCoreStore = defineStore(
     /**
      * 设置播放/暂停
      */
-    const setPlayMusic = async (value: boolean | SongResult) => {
+    const setPlayMusic = async (value: boolean | SongResult, isRemote: boolean = false) => {
       if (typeof value === 'boolean') {
-        setIsPlay(value);
+        setIsPlay(value, isRemote);
         userPlayIntent.value = value;
       } else {
-        await handlePlayMusic(value);
+        await handlePlayMusic(value, true, isRemote);
         play.value = true;
         isPlay.value = true;
         userPlayIntent.value = true;
