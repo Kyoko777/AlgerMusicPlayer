@@ -26,6 +26,11 @@
             <animate attributeName="stop-color" values="#00ffff;#ff00ff;#7000ff;#00ffff" dur="4s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
+        <!-- 为心电图准备的亮紫色 -->
+        <linearGradient id="ekg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#e8d5ff;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#d8b4fe;stop-opacity:1" />
+        </linearGradient>
       </defs>
     </svg>
 
@@ -71,9 +76,15 @@
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
+          <!-- “心动同步”音符切换按钮 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
-            <svg viewBox="0 0 24 24" class="w-4 h-4">
-              <path fill="url(#note-gradient)" d="M10 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h2V3h-4zM19 7v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V11h2V7h-4z"/>
+            <svg viewBox="0 0 24 24" class="w-5 h-5">
+              <!-- 左侧音符 -->
+              <path fill="url(#note-gradient)" d="M7 16a2 2 0 1 1-2-2 2 2 0 0 1 2 2zM7 14V5" />
+              <!-- 右侧音符 -->
+              <path fill="url(#note-gradient)" d="M19 16a2 2 0 1 1-2-2 2 2 0 0 1 2 2zM19 14V7" />
+              <!-- 心电图连接线 -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 8l2 2 1-4 2 6 1-4 6 3" />
             </svg>
           </button>
           <button @click.stop="toggleMinimize" class="transition-all hover:scale-125">
