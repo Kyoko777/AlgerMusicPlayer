@@ -36,23 +36,28 @@ export const useSyncStore = defineStore('sync', () => {
     socket.value.on('apply_sync', async (data: any) => {
       console.log('[Sync] Receiving remote operation:', data.operation);
       
+      const operation = data.operation;
+      const remoteData = data.data;
+
       // 这里的逻辑需要小心处理，避免循环触发
-      if (data.operation === 'play_music') {
+      if (operation === 'play_music') {
         // 传入 isRemote = true，防止二次广播导致死循环
-        await playerStore.handlePlayMusic(data.music, true, true);
-        
-        // 如果远端带了进度，进行对齐
-        if (data.data?.currentTime) {
-          setTimeout(() => {
-            audioService.seek(data.data.currentTime);
-          }, 500); // 稍微延迟确保歌曲已加载
+        if (remoteData?.music) {
+          await playerStore.handlePlayMusic(remoteData.music, true, true);
+          
+          // 如果远端带了进度，进行对齐
+          if (remoteData?.currentTime) {
+            setTimeout(() => {
+              audioService.seek(remoteData.currentTime);
+            }, 1000); // 稍微延迟确保歌曲已加载
+          }
         }
-      } else if (data.operation === 'pause') {
+      } else if (operation === 'pause') {
         playerStore.handlePause(true);
-      } else if (data.operation === 'resume') {
+      } else if (operation === 'resume') {
         playerStore.setIsPlay(true, true);
-        if (data.data?.currentTime) {
-          audioService.seek(data.data.currentTime);
+        if (remoteData?.currentTime) {
+          audioService.seek(remoteData.currentTime);
         }
       }
     });
