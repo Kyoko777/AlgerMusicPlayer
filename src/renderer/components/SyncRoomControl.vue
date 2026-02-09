@@ -58,11 +58,11 @@
         
         <!-- 精准挂载在企鹅头上的炫彩大耳机 -->
         <svg viewBox="0 0 100 100" class="absolute inset-0 w-[110%] h-[110%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-          <!-- 耳机梁：根据企鹅头型微调 -->
-          <path d="M22 45 A 28 28 0 0 1 78 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-          <!-- 左右耳罩：正好压在企鹅耳朵位置 -->
-          <rect x="14" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-          <rect x="74" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          <!-- 耳机梁：向上微调 -->
+          <path d="M25 42 A 25 25 0 0 1 75 42" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
+          <!-- 左右耳罩：向内收紧一点，贴合头型 -->
+          <rect x="18" y="38" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          <rect x="70" y="38" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
     </div>
