@@ -37,8 +37,9 @@
       
       <!-- 中心图标 -->
       <div class="relative w-8 h-8 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/20 shadow-lg group-hover:scale-110 transition-transform duration-500">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 transition-transform duration-500" :class="{ 'animate-spin-slow': isPlay }">
-          <path fill="url(#note-gradient)" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+        <!-- 两个音符设计：在一起听歌的图标 -->
+        <svg viewBox="0 0 24 24" class="w-5 h-5 transition-transform duration-500" :class="{ 'animate-spin-slow': isPlay }">
+          <path fill="url(#note-gradient)" d="M10 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h2V3h-4zM19 7v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V11h2V7h-4z"/>
         </svg>
       </div>
     </div>
@@ -51,9 +52,10 @@
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
+          <!-- 两个音符切换按钮 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-4 h-4">
-              <path fill="url(#note-gradient)" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+              <path fill="url(#note-gradient)" d="M10 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h2V3h-4zM19 7v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V11h2V7h-4z"/>
             </svg>
           </button>
           <button @click.stop="toggleMinimize" class="transition-all hover:scale-125">
