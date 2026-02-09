@@ -26,18 +26,33 @@
     <div 
       v-if="isMinimized" 
       @click="handleBallClick"
-      class="relative z-20 w-10 h-10 flex items-center justify-center cursor-pointer group"
+      class="relative z-20 w-12 h-12 flex items-center justify-center cursor-pointer group"
     >
       <!-- Siri 核心流体层 -->
       <div class="absolute inset-0 flex items-center justify-center">
-        <div :class="['absolute w-8 h-8 rounded-full blur-md opacity-80 mix-blend-screen', isPlay ? 'bg-purple-600 animate-siri-1' : 'bg-blue-600 animate-siri-1']"></div>
-        <div :class="['absolute w-7 h-7 rounded-full blur-sm opacity-90 mix-blend-screen', isPlay ? 'bg-blue-500 animate-siri-2' : 'bg-cyan-500 animate-siri-2']"></div>
-        <div :class="['absolute w-6 h-6 rounded-full blur-none opacity-100 mix-blend-screen', isPlay ? 'bg-pink-500 animate-siri-3' : 'bg-indigo-500 animate-siri-3']"></div>
+        <div :class="['absolute w-10 h-10 rounded-full blur-md opacity-80 mix-blend-screen', isPlay ? 'bg-purple-600 animate-siri-1' : 'bg-blue-600 animate-siri-1']"></div>
+        <div :class="['absolute w-8 h-8 rounded-full blur-sm opacity-90 mix-blend-screen', isPlay ? 'bg-blue-500 animate-siri-2' : 'bg-cyan-500 animate-siri-2']"></div>
+        <div :class="['absolute w-7 h-7 rounded-full blur-none opacity-100 mix-blend-screen', isPlay ? 'bg-pink-500 animate-siri-3' : 'bg-indigo-500 animate-siri-3']"></div>
       </div>
       
-      <!-- Pingu 中心图标 -->
-      <div class="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/20 shadow-lg group-hover:scale-110 transition-transform duration-500">
-        <img src="@/assets/sync/pingu_head.jpg" class="w-full h-full object-cover scale-125 translate-y-1" :class="{ 'animate-pingu-bounce': isPlay }" />
+      <!-- Pingu 中心图标 + 耳机 -->
+      <div class="relative w-10 h-10 rounded-full flex items-center justify-center bg-black/20 backdrop-blur-sm group-hover:scale-110 transition-transform duration-500">
+        <!-- Pingu 头部 -->
+        <div class="absolute inset-0 rounded-full overflow-hidden border border-white/10 shadow-lg">
+          <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-150 translate-y-1" :class="{ 'animate-pingu-bounce': isPlay }" />
+        </div>
+        
+        <!-- SVG 耳机图层 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full pointer-events-none z-30" :class="{ 'animate-headphone-beat': isPlay }">
+          <!-- 耳机梁 -->
+          <path d="M25 50 A 25 25 0 0 1 75 50" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+          <!-- 左耳罩 -->
+          <rect x="18" y="45" width="10" height="18" rx="4" fill="white" opacity="0.9" />
+          <!-- 右耳罩 -->
+          <rect x="72" y="45" width="10" height="18" rx="4" fill="white" opacity="0.9" />
+          <!-- 装饰发光线 -->
+          <path v-if="isPlay" d="M15 50 L5 50 M85 50 L95 50" stroke="#c084fc" stroke-width="2" stroke-linecap="round" class="animate-pulse" />
+        </svg>
       </div>
     </div>
 
@@ -94,7 +109,7 @@
             <button @click="handleJoin('public')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase">Multi</button>
           </div>
         </div>
-        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-xl">
+        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/5 backdrop-blur-xl">
           <div class="text-[8px] text-purple-400 uppercase tracking-[0.5em] font-black">Quantum Room</div>
           <div class="text-lg font-mono font-black text-white tracking-[0.3em]">{{ roomId }}</div>
           <button @click="leaveRoom" class="text-[8px] text-red-500 font-black hover:text-red-400 uppercase tracking-widest mt-1">Disconnect</button>
@@ -137,8 +152,8 @@ const panelStyle = computed(() => {
   };
 
   if (isMinimized.value) {
-    style.width = '40px';
-    style.height = '40px';
+    style.width = '48px';
+    style.height = '48px';
     style.borderRadius = '50%';
     style.padding = '0';
     style.background = 'transparent';
@@ -240,14 +255,20 @@ const leaveRoom = () => {
 }
 
 @keyframes pingu-bounce {
-  0%, 100% { transform: scale(1.25) translateY(4px); }
-  50% { transform: scale(1.35) translateY(2px); }
+  0%, 100% { transform: scale(1.5) translateY(1px); }
+  50% { transform: scale(1.6) translateY(-1px); }
+}
+
+@keyframes headphone-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .animate-siri-1 { animation: siri-1 3s infinite ease-in-out; }
 .animate-siri-2 { animation: siri-2 4s infinite ease-in-out; }
 .animate-siri-3 { animation: siri-3 2.5s infinite ease-in-out; }
-.animate-pingu-bounce { animation: pingu-bounce 0.6s infinite ease-in-out; }
+.animate-pingu-bounce { animation: pingu-bounce 0.5s infinite ease-in-out; }
+.animate-headphone-beat { animation: headphone-beat 0.5s infinite ease-in-out; transform-origin: center; }
 
 .animate-spin-slow { animation: spin 6s linear infinite; }
 
