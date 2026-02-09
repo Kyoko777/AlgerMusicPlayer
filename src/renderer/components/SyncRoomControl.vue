@@ -159,19 +159,6 @@
           />
         </svg>
       </div>
-      
-      <!-- Pingu 身体形态 - 水平位移 -2，仅耳机在音乐播放时震动 -->
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2">
-        <!-- Pingu 主体 (静止) -->
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
-        
-        <!-- 大号炫彩耳机 - 放大 135%, inset -20.5%, 半径 25 -->
-        <svg viewBox="0 0 100 100" class="absolute inset-[-20.5%] w-[135%] h-[135%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-          <path d="M25 45 A 25 25 0 0 1 75 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-          <rect x="18" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-          <rect x="70" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-        </svg>
-      </div>
     </div>
 
     <!-- 完整面板模式 -->
