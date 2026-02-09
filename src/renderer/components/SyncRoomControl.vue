@@ -34,37 +34,37 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 (展开模式) -->
+    <!-- 面板背景层 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
       <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" />
       <div class="absolute inset-0 bg-gradient-to-br from-black/95 via-black/80 to-black/95 backdrop-blur-md"></div>
     </div>
 
-    <!-- 究极进化悬浮球 (收起模式) - 放大尺寸 -->
+    <!-- 悬浮球 (收起模式) -->
     <div 
       v-if="isMinimized" 
       @click="handleBallClick"
-      class="relative z-20 w-20 h-20 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
+      class="relative z-20 w-16 h-16 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 动态浮动音符粒子 -->
+      <!-- 动态音符粒子 -->
       <div class="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none">
-        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-6 h-6 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
+        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
       
-      <!-- 外置精准贴合炫彩耳机 - 适配放大后的圆球 -->
-      <svg viewBox="0 0 100 100" class="absolute inset-[-25px] w-[160%] h-[160%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+      <!-- 外置耳机 - 修正偏移(+5)，加大尺寸，紧贴轮廓 -->
+      <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[156%] h-[156%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
         <!-- 耳机梁 -->
-        <path d="M25 50 A 30 30 0 0 1 85 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(5, 0)" />
+        <path d="M25 50 A 30 30 0 0 1 85 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
         <!-- 左右耳罩 -->
-        <rect x="15" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(5, 0)" />
-        <rect x="81" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(5, 0)" />
+        <rect x="15" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
+        <rect x="81" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
       </svg>
 
-      <!-- Pingu 头部核心球体 - 放大 -->
-      <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 transition-transform duration-500">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[2.5] translate-y-3" :class="{ 'animate-pingu-pulse': isPlay }" />
+      <!-- Pingu 头部核心球体 - 缩小头部 -->
+      <div class="relative w-12 h-11 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 transition-transform duration-500">
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[2.0] translate-y-2" :class="{ 'animate-pingu-pulse': isPlay }" />
       </div>
     </div>
 
@@ -151,8 +151,8 @@ const isSetting = ref(false);
 const isMinimized = ref(false);
 const serverUrlInput = ref('');
 
-// 初始位置向右移动一点点 (16 -> 24)
-const position = ref({ x: 24, y: 96 });
+// 向左移动一点 (24 -> 16)
+const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
 
@@ -163,8 +163,8 @@ const panelStyle = computed(() => {
   };
 
   if (isMinimized.value) {
-    style.width = '80px'; // 放大主体
-    style.height = '80px';
+    style.width = '64px'; // 缩小主体
+    style.height = '64px';
     style.borderRadius = '50%';
     style.padding = '0';
     style.background = 'transparent';
@@ -201,10 +201,10 @@ const handleMouseDown = (e: MouseEvent) => {
   };
 
   const handleMouseUp = () => {
-    // 延迟释放，防止拖拽和点击冲突
+    // 延迟一小会儿释放，防止点击和拖拽冲突
     setTimeout(() => {
       isDragging.value = false;
-    }, 100);
+    }, 50);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
@@ -254,32 +254,33 @@ const leaveRoom = () => {
 <style scoped>
 .dragging-active {
   transition: none !important;
+  cursor: grabbing !important;
 }
 
 @keyframes note-float-1 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(-30px, -30px) rotate(-30deg) scale(1.4); }
-  66% { transform: translate(25px, -50px) rotate(30deg) scale(0.7); }
+  33% { transform: translate(-25px, -25px) rotate(-20deg) scale(1.4); }
+  66% { transform: translate(20px, -40px) rotate(30deg) scale(0.7); }
 }
 @keyframes note-float-2 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(30px, -25px) rotate(20deg) scale(1.3); }
-  66% { transform: translate(-20px, -55px) rotate(-20deg) scale(0.8); }
+  33% { transform: translate(25px, -20px) rotate(20deg) scale(1.3); }
+  66% { transform: translate(-15px, -45px) rotate(-20deg) scale(0.8); }
 }
 @keyframes note-float-3 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(0, -45px) rotate(-15deg) scale(1.5); }
-  66% { transform: translate(30px, -35px) rotate(15deg) scale(0.6); }
+  33% { transform: translate(0, -35px) rotate(-15deg) scale(1.5); }
+  66% { transform: translate(25px, -30px) rotate(15deg) scale(0.6); }
 }
 
 @keyframes headphone-vibrate {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  50% { transform: scale(1.1); }
 }
 
 @keyframes pingu-pulse {
-  0%, 100% { transform: scale(2.5) translateY(12px); }
-  50% { transform: scale(2.6) translateY(10px); }
+  0%, 100% { transform: scale(2.0) translateY(10px); }
+  50% { transform: scale(2.1) translateY(8px); }
 }
 
 .animate-note-float-1 { animation: note-float-1 4s infinite ease-in-out; }
