@@ -4,9 +4,8 @@
     class="sync-room-control fixed z-[9999] select-none"
     :style="panelStyle"
     :class="{ 
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden transition-all duration-700': !isMinimized, 
-      'overflow-visible': isMinimized,
-      'dragging-active': isDragging 
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden': !isMinimized, 
+      'overflow-visible': isMinimized
     }"
     @mousedown="handleMouseDown"
   >
@@ -17,7 +16,6 @@
           <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
         </linearGradient>
-        <!-- 强化炫彩渐变 -->
         <linearGradient id="headphone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:1">
             <animate attributeName="stop-color" values="#ff00ff;#7000ff;#00ffff;#ff00ff" dur="4s" repeatCount="indefinite" />
@@ -26,7 +24,6 @@
             <animate attributeName="stop-color" values="#00ffff;#ff00ff;#7000ff;#00ffff" dur="4s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
-        <!-- 心电图专属亮紫色 -->
         <linearGradient id="ekg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#e8d5ff;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#d8b4fe;stop-opacity:1" />
@@ -53,18 +50,16 @@
         </svg>
       </div>
       
-      <!-- 外置耳机 - 修正偏移(+5)，加大尺寸，紧贴轮廓 -->
-      <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[156%] h-[156%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-        <!-- 耳机梁 -->
-        <path d="M25 50 A 30 30 0 0 1 85 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
-        <!-- 左右耳罩 -->
-        <rect x="15" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
-        <rect x="81" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
+      <!-- 外置耳机 - 居中对齐，紧贴轮廓 -->
+      <svg viewBox="0 0 100 100" class="absolute inset-[-15px] w-[145%] h-[145%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+        <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" />
+        <rect x="10" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+        <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
       </svg>
 
-      <!-- Pingu 头部核心球体 - 缩小头部 -->
-      <div class="relative w-12 h-11 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 transition-transform duration-500">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[2.0] translate-y-2" :class="{ 'animate-pingu-pulse': isPlay }" />
+      <!-- Pingu 核心球体 - 缩小头部比例 -->
+      <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 transition-transform duration-500">
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[1.6] translate-y-1.5" :class="{ 'animate-pingu-pulse': isPlay }" />
       </div>
     </div>
 
@@ -151,7 +146,7 @@ const isSetting = ref(false);
 const isMinimized = ref(false);
 const serverUrlInput = ref('');
 
-// 向左移动一点 (24 -> 16)
+// 初始位置回归 (16, 96)
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
@@ -159,11 +154,12 @@ const dragOffset = ref({ x: 0, y: 0 });
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`,
-    bottom: `${position.value.y}px`
+    bottom: `${position.value.y}px`,
+    transition: isDragging.value ? 'none' : 'all 0.7s ease-in-out'
   };
 
   if (isMinimized.value) {
-    style.width = '64px'; // 缩小主体
+    style.width = '64px'; 
     style.height = '64px';
     style.borderRadius = '50%';
     style.padding = '0';
@@ -201,10 +197,8 @@ const handleMouseDown = (e: MouseEvent) => {
   };
 
   const handleMouseUp = () => {
-    // 延迟一小会儿释放，防止点击和拖拽冲突
-    setTimeout(() => {
-      isDragging.value = false;
-    }, 50);
+    // 立即结束拖拽状态，恢复平滑过渡
+    isDragging.value = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
@@ -252,14 +246,9 @@ const leaveRoom = () => {
 </script>
 
 <style scoped>
-.dragging-active {
-  transition: none !important;
-  cursor: grabbing !important;
-}
-
 @keyframes note-float-1 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(-25px, -25px) rotate(-20deg) scale(1.4); }
+  33% { transform: translate(-25px, -25px) rotate(-30deg) scale(1.4); }
   66% { transform: translate(20px, -40px) rotate(30deg) scale(0.7); }
 }
 @keyframes note-float-2 {
@@ -275,12 +264,12 @@ const leaveRoom = () => {
 
 @keyframes headphone-vibrate {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.08); }
 }
 
 @keyframes pingu-pulse {
-  0%, 100% { transform: scale(2.0) translateY(10px); }
-  50% { transform: scale(2.1) translateY(8px); }
+  0%, 100% { transform: scale(1.6) translateY(6px); }
+  50% { transform: scale(1.7) translateY(4px); }
 }
 
 .animate-note-float-1 { animation: note-float-1 4s infinite ease-in-out; }
