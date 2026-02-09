@@ -46,29 +46,26 @@
       @click="handleBallClick"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 动态浮动音符粒子 - 调整起点至耳机两侧，避免挡脸 -->
+      <!-- 动态浮动音符粒子 - 从耳机飘出，不挡脸 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
-        <!-- 左耳出来的音符 -->
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
-        <!-- 右耳出来的音符 -->
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
-        <!-- 顶部中心出来的音符 -->
         <svg viewBox="0 0 24 24" :class="['absolute w-4 h-4 fill-current mix-blend-screen', isPlay ? 'animate-note-float-top' : 'opacity-0']" style="left: 48%; top: 15%; color: #ec4899;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
       
-      <!-- Pingu 身体形态 - 向右微调位置 (从 -4 变为 -2) 并恢复摇摆动画 -->
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <!-- Pingu 主体图片 -->
+      <!-- Pingu 身体形态 - 水平位移 -2，仅耳机在音乐播放时震动 -->
+      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2">
+        <!-- Pingu 主体 (静止) -->
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
-        <!-- 精准贴合大耳机 - 维持 -20.5% 偏置 -->
-        <svg viewBox="0 0 100 100" class="absolute inset-[-20.5%] w-[141%] h-[141%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+        <!-- 大号炫彩耳机 - 放大 135%, inset -20.5%, 半径 25 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-[-20.5%] w-[135%] h-[135%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
           <path d="M25 45 A 25 25 0 0 1 75 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="18" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
           <rect x="70" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
@@ -76,7 +73,7 @@
       </div>
     </div>
 
-    <!-- 完整面板模式 (保持操作界面不丢失) -->
+    <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 text-white animate-fade-in">
       <div class="flex items-center justify-between cursor-move drag-handle">
         <div class="flex items-center space-x-2">
@@ -84,6 +81,7 @@
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
+          <!-- 心跳音符图标 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-6 h-6">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" />
@@ -211,7 +209,7 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => {
     setTimeout(() => {
       isDragging.value = false;
-    }, 100);
+    }, 50);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
@@ -288,16 +286,10 @@ const leaveRoom = () => {
   50% { transform: scale(1.08); }
 }
 
-@keyframes pingu-sway {
-  0%, 100% { transform: rotate(-3deg) translateY(2px); }
-  50% { transform: rotate(3deg) translateY(-2px); }
-}
-
 .animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
 .animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
 .animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
 .animate-headphone-vibrate { animation: headphone-vibrate 1.2s infinite ease-in-out; transform-origin: center; }
-.animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
 
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn {
