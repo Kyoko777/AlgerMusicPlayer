@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
 import { ref, watch } from 'vue';
 
+import { audioService } from '@/services/audioService';
 import { usePlayerStore } from './player';
 
 export const useSyncStore = defineStore('sync', () => {
@@ -43,7 +44,6 @@ export const useSyncStore = defineStore('sync', () => {
         // 如果远端带了进度，进行对齐
         if (data.data?.currentTime) {
           setTimeout(() => {
-            const { audioService } = require('@/services/audioService');
             audioService.seek(data.data.currentTime);
           }, 500); // 稍微延迟确保歌曲已加载
         }
@@ -52,7 +52,6 @@ export const useSyncStore = defineStore('sync', () => {
       } else if (data.operation === 'resume') {
         playerStore.setIsPlay(true, true);
         if (data.data?.currentTime) {
-          const { audioService } = require('@/services/audioService');
           audioService.seek(data.data.currentTime);
         }
       }
@@ -67,7 +66,6 @@ export const useSyncStore = defineStore('sync', () => {
   const sendSync = (operation: string, data: any) => {
     if (isSyncing.value && socket.value) {
       // 附加当前进度
-      const { audioService } = require('@/services/audioService');
       const currentSound = audioService.getCurrentSound();
       const currentTime = currentSound?.seek() || 0;
 
