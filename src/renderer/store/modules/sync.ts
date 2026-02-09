@@ -57,7 +57,11 @@ export const useSyncStore = defineStore('sync', () => {
       } else if (operation === 'resume') {
         playerStore.setIsPlay(true, true);
         if (remoteData?.currentTime) {
-          audioService.seek(remoteData.currentTime);
+          audioService.seek(remoteData.currentTime, true);
+        }
+      } else if (operation === 'seek') {
+        if (remoteData?.currentTime) {
+          audioService.seek(remoteData.currentTime, true);
         }
       }
     });

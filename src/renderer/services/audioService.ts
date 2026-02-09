@@ -868,7 +868,7 @@ class AudioService {
     this.applyVolume(volume);
   }
 
-  seek(time: number) {
+  seek(time: number, isRemote: boolean = false) {
     // 直接强制重置操作锁
     this.forceResetOperationLock();
 
@@ -879,6 +879,16 @@ class AudioService {
         // 触发seek事件
         this.updateMediaSessionPositionState();
         this.emit('seek', time);
+
+        // [HDLC Sync] 进度同步广播
+        if (!isRemote) {
+          import('@/store/modules/sync').then((m) => {
+            const syncStore = m.useSyncStore();
+            if (syncStore.isSyncing) {
+              syncStore.sendSync('seek', { currentTime: time });
+            }
+          });
+        }
       } catch (error) {
         console.error('Seek操作失败:', error);
       }
