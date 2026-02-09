@@ -57,9 +57,9 @@
         <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
       </svg>
 
-      <!-- Pingu 核心球体 - 缩小头部比例 -->
+      <!-- Pingu 核心球体 - 缩小比例以露出身体 -->
       <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 transition-transform duration-500">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[1.6] translate-y-1.5" :class="{ 'animate-pingu-pulse': isPlay }" />
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain scale-[1.1] translate-y-1" :class="{ 'animate-pingu-pulse': isPlay }" />
       </div>
     </div>
 
@@ -268,8 +268,8 @@ const leaveRoom = () => {
 }
 
 @keyframes pingu-pulse {
-  0%, 100% { transform: scale(1.6) translateY(6px); }
-  50% { transform: scale(1.7) translateY(4px); }
+  0%, 100% { transform: scale(1.1) translateY(1px); }
+  50% { transform: scale(1.15) translateY(-1px); }
 }
 
 .animate-note-float-1 { animation: note-float-1 4s infinite ease-in-out; }
