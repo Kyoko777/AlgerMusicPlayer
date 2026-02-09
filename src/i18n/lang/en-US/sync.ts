@@ -11,7 +11,7 @@ export default {
   linked: 'Linked',
   sync: 'Sync',
   endpoint: 'Endpoint',
-  deploy: 'Deploy',
+  save: 'Save',
   code: 'CODE',
   quantumRoom: 'Quantum Room',
   disconnect: 'Disconnect'

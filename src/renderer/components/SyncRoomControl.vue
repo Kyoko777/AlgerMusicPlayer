@@ -234,7 +234,7 @@
               : 'bg-purple-500/30 hover:bg-purple-500/50 border-purple-400'
           ]"
         >
-          {{ t('sync.deploy') }}
+          {{ t('sync.save') }}
         </button>
       </div>
 

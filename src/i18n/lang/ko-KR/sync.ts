@@ -11,7 +11,7 @@ export default {
   linked: '연결됨',
   sync: '동기화',
   endpoint: '엔드포인트',
-  deploy: '배포',
+  save: '저장',
   code: '코드',
   quantumRoom: '퀀텀 룸',
   disconnect: '연결 끊기'

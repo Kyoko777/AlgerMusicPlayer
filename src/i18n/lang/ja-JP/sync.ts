@@ -11,7 +11,7 @@ export default {
   linked: '接続済み',
   sync: '同期',
   endpoint: 'エンドポイント',
-  deploy: 'デプロイ',
+  save: '保存',
   code: 'コード',
   quantumRoom: '量子ルーム',
   disconnect: '切断'

@@ -11,7 +11,7 @@ export default {
   linked: '已連接',
   sync: '同步',
   endpoint: '端點',
-  deploy: '部署',
+  save: '儲存',
   code: '代碼',
   quantumRoom: '量子空間',
   disconnect: '斷開連接'
