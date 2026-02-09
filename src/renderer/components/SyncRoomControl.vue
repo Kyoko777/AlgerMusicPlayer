@@ -46,15 +46,8 @@
       @click="handleBallClick"
       class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 动态音符粒子 -->
-      <div class="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none">
-        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
-          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-        </svg>
-      </div>
-      
-      <!-- Pingu 身体形态 - 整体缩小并向左偏移 -->
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-4" :class="{ 'animate-pingu-sway': isPlay }">
+      <!-- Pingu 身体形态 - 整体缩小并调整位置 (从 -4 改为 -2 以右移) -->
+      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <!-- Pingu 主体图片 -->
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
@@ -63,6 +56,13 @@
           <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
           <rect x="10" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
           <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
+        </svg>
+      </div>
+
+      <!-- 动态浮动音符粒子 - 提升层级至 z-40，确保在耳机上方 -->
+      <div class="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none z-40">
+        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
     </div>
