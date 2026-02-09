@@ -56,13 +56,13 @@
         <!-- Pingu 主体图片 (含身体) -->
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
         
-        <!-- 精准挂载在企鹅头上的炫彩大耳机 -->
-        <svg viewBox="0 0 100 100" class="absolute inset-0 w-[120%] h-[120%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-          <!-- 耳机梁：根据企鹅真实的头部弧度调整 (向下平移并加宽) -->
-          <path d="M25 48 A 25 25 0 0 1 75 48" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-          <!-- 左右耳罩：正好压在企鹅两侧胖嘟嘟的脸颊上方 -->
-          <rect x="16" y="42" width="14" height="26" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-          <rect x="70" y="42" width="14" height="26" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+        <!-- 精准挂载在企鹅头上的炫彩大耳机 - 放大 10% 并修正夹脸问题 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-[-15px] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+          <!-- 耳机梁：放宽半径 (25->30)，向下平移一点 (48->50) -->
+          <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" />
+          <!-- 左右耳罩：向外挪动，给企鹅脸颊留出空间 -->
+          <rect x="10" y="42" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          <rect x="76" y="42" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
     </div>
