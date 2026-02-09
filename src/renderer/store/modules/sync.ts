@@ -16,8 +16,10 @@ export const useSyncStore = defineStore('sync', () => {
 
   // 初始化连接
   const initSync = (targetRoomId: string, type: 'private' | 'public' = 'private') => {
-    // 这里的 URL 之后可以替换为真实的服务器地址
-    socket.value = io('http://192.168.124.3:3000', {
+    // 自动检测环境：如果是本地开发则用本地IP，否则可以手动指定
+    const serverUrl = window.localStorage.getItem('SYNC_SERVER_URL') || 'http://192.168.124.3:3000';
+    
+    socket.value = io(serverUrl, {
       query: { roomId: targetRoomId, userId: userId.value }
     });
 
