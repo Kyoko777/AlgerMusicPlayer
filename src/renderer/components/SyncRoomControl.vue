@@ -1,7 +1,7 @@
 <template>
   <div 
     ref="panelRef"
-    class="sync-room-control fixed rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] select-none transition-all duration-500 ease-in-out"
+    class="sync-room-control fixed rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
     :class="{ 'border border-white/20 overflow-hidden': !isMinimized, 'overflow-visible': isMinimized }"
     @mousedown="handleMouseDown"
@@ -28,19 +28,16 @@
       @click="handleBallClick"
       class="relative z-20 w-10 h-10 flex items-center justify-center cursor-pointer group"
     >
-      <!-- Siri 核心流体层 - 提高不透明度，减小直径 -->
+      <!-- Siri 核心流体层 -->
       <div class="absolute inset-0 flex items-center justify-center">
         <div :class="['absolute w-8 h-8 rounded-full blur-md opacity-80 mix-blend-screen', isPlay ? 'bg-purple-600 animate-siri-1' : 'bg-blue-600 animate-siri-1']"></div>
         <div :class="['absolute w-7 h-7 rounded-full blur-sm opacity-90 mix-blend-screen', isPlay ? 'bg-blue-500 animate-siri-2' : 'bg-cyan-500 animate-siri-2']"></div>
         <div :class="['absolute w-6 h-6 rounded-full blur-none opacity-100 mix-blend-screen', isPlay ? 'bg-pink-500 animate-siri-3' : 'bg-indigo-500 animate-siri-3']"></div>
       </div>
       
-      <!-- 中心图标 -->
-      <div class="relative w-8 h-8 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/20 shadow-lg group-hover:scale-110 transition-transform duration-500">
-        <!-- 两个音符设计：在一起听歌的图标 -->
-        <svg viewBox="0 0 24 24" class="w-5 h-5 transition-transform duration-500" :class="{ 'animate-spin-slow': isPlay }">
-          <path fill="url(#note-gradient)" d="M10 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h2V3h-4zM19 7v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V11h2V7h-4z"/>
-        </svg>
+      <!-- Pingu 中心图标 -->
+      <div class="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/20 shadow-lg group-hover:scale-110 transition-transform duration-500">
+        <img src="@/assets/sync/pingu_head.jpg" class="w-full h-full object-cover scale-125 translate-y-1" :class="{ 'animate-pingu-bounce': isPlay }" />
       </div>
     </div>
 
@@ -113,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useSyncStore } from '@/store/modules/sync';
 import { usePlayerStore } from '@/store/modules/player';
@@ -242,9 +239,15 @@ const leaveRoom = () => {
   66% { transform: scale(1.05) translate(-5px, -5px); opacity: 0.9; }
 }
 
+@keyframes pingu-bounce {
+  0%, 100% { transform: scale(1.25) translateY(4px); }
+  50% { transform: scale(1.35) translateY(2px); }
+}
+
 .animate-siri-1 { animation: siri-1 3s infinite ease-in-out; }
 .animate-siri-2 { animation: siri-2 4s infinite ease-in-out; }
 .animate-siri-3 { animation: siri-3 2.5s infinite ease-in-out; }
+.animate-pingu-bounce { animation: pingu-bounce 0.6s infinite ease-in-out; }
 
 .animate-spin-slow { animation: spin 6s linear infinite; }
 
