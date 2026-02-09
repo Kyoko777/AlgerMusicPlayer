@@ -53,13 +53,13 @@
         </svg>
       </div>
       
-      <!-- Pingu 身体形态 - 缩小并向左偏移 -->
-      <div class="relative w-20 h-20 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-3" :class="{ 'animate-pingu-sway': isPlay }">
-        <!-- Pingu 主体图片 (contain模式保证完整) -->
+      <!-- Pingu 身体形态 - 整体缩小并向左偏移 -->
+      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-4" :class="{ 'animate-pingu-sway': isPlay }">
+        <!-- Pingu 主体图片 -->
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
-        <!-- 耳机比例缩小 -->
-        <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+        <!-- 耳机比例随动 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-[-15px] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
           <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
           <rect x="10" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
           <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
