@@ -51,6 +51,14 @@ export const usePlayerCoreStore = defineStore(
       isPlay.value = value;
       play.value = value;
       window.electron?.ipcRenderer.send('update-play-state', value);
+
+      // [HDLC Sync] 注入同步逻辑
+      import('./sync').then((m) => {
+        const syncStore = m.useSyncStore();
+        if (syncStore.isSyncing) {
+          syncStore.sendSync(value ? 'resume' : 'pause', {});
+        }
+      });
     };
 
     /**
@@ -167,7 +175,21 @@ export const usePlayerCoreStore = defineStore(
     /**
      * 核心播放处理函数
      */
-    const handlePlayMusic = async (music: SongResult, isPlay: boolean = true) => {
+    const handlePlayMusic = async (
+      music: SongResult,
+      isPlay: boolean = true,
+      isRemote: boolean = false
+    ) => {
+      // [HDLC Sync] 如果不是来自远端的同步，则广播该操作
+      if (!isRemote) {
+        import('./sync').then((m) => {
+          const syncStore = m.useSyncStore();
+          if (syncStore.isSyncing) {
+            syncStore.sendSync('play_music', { music });
+          }
+        });
+      }
+
       // 如果是新歌曲，重置已尝试的音源（使用 SongSourceConfigManager 按歌曲隔离）
       if (music.id !== playMusic.value.id) {
         SongSourceConfigManager.clearTriedSources(music.id);

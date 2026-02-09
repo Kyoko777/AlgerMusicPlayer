@@ -33,6 +33,8 @@
           <app-menu v-if="shouldShowMobileMenu" class="menu mobile-menu" :menus="menuStore.menus" />
         </div>
       </div>
+      <!-- 一起听悬浮控制面板 -->
+      <sync-room-control v-if="!settingsStore.isMobile" />
       <!-- 底部音乐播放 -->
       <template v-if="!settingsStore.isMiniMode">
         <play-bar
@@ -61,6 +63,7 @@
     />
     <!-- 播放列表抽屉 -->
     <playing-list-drawer />
+    <sync-room-control v-if="settingsStore.isMobile && !playerStore.musicFull" />
   </div>
 </template>
 
@@ -105,6 +108,7 @@ const TitleBar = defineAsyncComponent(() => import('./components/TitleBar.vue'))
 const PlayingListDrawer = defineAsyncComponent(
   () => import('@/components/player/PlayingListDrawer.vue')
 );
+const SyncRoomControl = defineAsyncComponent(() => import('@/components/SyncRoomControl.vue'));
 const PlaylistDrawer = defineAsyncComponent(() => import('@/components/common/PlaylistDrawer.vue'));
 
 const playerStore = usePlayerStore();
@@ -157,11 +161,11 @@ provide('openPlaylistDrawer', openPlaylistDrawer);
 }
 
 .layout-main-page {
-  @apply flex h-full;
+  @apply flex h-full overflow-hidden;
 }
 
 .menu {
-  @apply h-full;
+  @apply h-full overflow-y-auto;
 }
 
 .main {
