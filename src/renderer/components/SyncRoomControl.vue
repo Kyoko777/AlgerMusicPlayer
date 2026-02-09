@@ -32,7 +32,7 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 (展开模式) -->
+    <!-- 面板背景层 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
       <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" draggable="false" />
       <div class="absolute inset-0 bg-gradient-to-br from-black/95 via-black/80 to-black/95 backdrop-blur-md"></div>
@@ -44,39 +44,37 @@
       @click="handleBallClick"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- Pingu 身体形态 - 仅向右微调位置 (translate-x 从 -2 变为 -1) -->
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-1" :class="{ 'animate-pingu-sway': isPlay }">
+      <!-- Pingu 身体形态 - 缩小比例并稍微靠左 (translate-x = -2) -->
+      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <!-- Pingu 主体图片 -->
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
-        <!-- 耳机放大 (从 120% 增至 135%，不影响企鹅大小) -->
-        <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[135%] h-[135%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-          <!-- 耳机梁：放宽半径 -->
-          <path d="M22 45 A 28 28 0 0 1 78 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" />
-          <!-- 左右耳罩：比例同步放大 -->
-          <rect x="14" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-          <rect x="72" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+        <!-- 精准贴合大耳机 - 维持 120% 比例 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-0 w-[120%] h-[120%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+          <path d="M25 45 A 25 25 0 0 1 75 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
+          <rect x="18" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          <rect x="70" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
 
       <!-- 动态浮动音符粒子 - 调整起点至耳机两侧，避免挡脸 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <!-- 左耳出来的音符 -->
-        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 15%; top: 40%; color: #c084fc;">
+        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
         <!-- 右耳出来的音符 -->
-        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 15%; top: 40%; color: #6366f1;">
+        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
-        <!-- 顶部中心稍微向上的音符 -->
-        <svg viewBox="0 0 24 24" :class="['absolute w-4 h-4 fill-current mix-blend-screen', isPlay ? 'animate-note-float-top' : 'opacity-0']" style="left: 45%; top: 20%; color: #ec4899;">
+        <!-- 顶部中心出来的音符 -->
+        <svg viewBox="0 0 24 24" :class="['absolute w-4 h-4 fill-current mix-blend-screen', isPlay ? 'animate-note-float-top' : 'opacity-0']" style="left: 48%; top: 15%; color: #ec4899;">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
     </div>
 
-    <!-- 完整面板模式 (保持操作界面不丢失) -->
+    <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 text-white animate-fade-in">
       <div class="flex items-center justify-between cursor-move drag-handle">
         <div class="flex items-center space-x-2">
@@ -128,7 +126,7 @@
             <button @click="handleJoin('public')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase transition-all active:scale-95">Multi</button>
           </div>
         </div>
-        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-xl">
+        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/5 backdrop-blur-xl">
           <div class="text-[8px] text-purple-400 uppercase tracking-[0.5em] font-black">Quantum Room</div>
           <div class="text-lg font-mono font-black text-white tracking-[0.3em]">{{ roomId }}</div>
           <button @click="leaveRoom" class="text-[8px] text-red-500 font-black hover:text-red-400 uppercase tracking-widest mt-1">Disconnect</button>
