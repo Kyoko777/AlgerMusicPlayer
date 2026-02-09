@@ -48,6 +48,9 @@ export const usePlayerCoreStore = defineStore(
      * 设置播放状态
      */
     const setIsPlay = (value: boolean, isRemote: boolean = false) => {
+      // [HDLC Sync] 避免重复设置导致死循环
+      if (isPlay.value === value) return;
+
       isPlay.value = value;
       play.value = value;
       window.electron?.ipcRenderer.send('update-play-state', value);
@@ -500,6 +503,9 @@ export const usePlayerCoreStore = defineStore(
      * 暂停播放
      */
     const handlePause = async (isRemote: boolean = false) => {
+      // [HDLC Sync] 如果已经是暂停状态，不再重复处理
+      if (!isPlay.value && !userPlayIntent.value) return;
+
       try {
         const currentSound = audioService.getCurrentSound();
         if (currentSound) {
