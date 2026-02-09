@@ -55,11 +55,11 @@
       
       <!-- 外置精准贴合炫彩耳机 - 修正偏移，紧贴轮廓 -->
       <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[156%] h-[156%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-        <!-- 耳机梁：根据反馈微调 X 轴位置(32->35)，确保居中贴合 -->
-        <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(10, 0)" />
+        <!-- 耳机梁：包裹在球体外部 -->
+        <path d="M25 50 A 30 30 0 0 1 85 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
         <!-- 左右耳罩：紧紧包裹圆球轮廓 -->
-        <rect x="10" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(10, 0)" />
-        <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(10, 0)" />
+        <rect x="15" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
+        <rect x="81" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
       </svg>
 
       <!-- Pingu 头部核心球体 -->
@@ -76,12 +76,17 @@
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
-          <!-- “心电音符”按钮 -->
+          <!-- “心动同步”音符切换按钮 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-6 h-6">
-              <path fill="url(#note-gradient)" d="M7 16a2 2 0 1 1-2-2 2 2 0 0 1 2 2zM7 14V5" />
-              <path fill="url(#note-gradient)" d="M19 16a2 2 0 1 1-2-2 2 2 0 0 1 2 2zM19 14V7" />
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 8l2 2 1-4 2 6 1-4 6 3" />
+              <!-- 左侧音符：主体更明显 -->
+              <circle fill="url(#note-gradient)" cx="6" cy="18" r="3" />
+              <path fill="url(#note-gradient)" d="M9 18V5h2v13H9z" />
+              <!-- 右侧音符：主体更明显 -->
+              <circle fill="url(#note-gradient)" cx="18" cy="18" r="3" />
+              <path fill="url(#note-gradient)" d="M21 18V7h2v11h-2z" />
+              <!-- 心电图连接线：更细，亮紫色 -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9 10l2 2 1-6 2 8 1-6 6 4" />
             </svg>
           </button>
           <button @click.stop="toggleMinimize" class="transition-all hover:scale-125">
