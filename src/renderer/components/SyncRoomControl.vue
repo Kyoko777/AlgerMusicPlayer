@@ -1,10 +1,10 @@
 <template>
   <div 
     ref="panelRef"
-    class="sync-room-control fixed z-[9999] select-none transition-all duration-700 ease-in-out"
+    class="sync-room-control fixed z-[9999] select-none"
     :style="panelStyle"
     :class="{ 
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden': !isMinimized, 
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden transition-all duration-700': !isMinimized, 
       'overflow-visible bg-transparent': isMinimized,
       'dragging-active': isDragging 
     }"
@@ -17,6 +17,7 @@
           <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
         </linearGradient>
+        <!-- 强化炫彩渐变 -->
         <linearGradient id="headphone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:1">
             <animate attributeName="stop-color" values="#ff00ff;#7000ff;#00ffff;#ff00ff" dur="4s" repeatCount="indefinite" />
@@ -25,6 +26,7 @@
             <animate attributeName="stop-color" values="#00ffff;#ff00ff;#7000ff;#00ffff" dur="4s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
+        <!-- 心电图专属亮紫色 -->
         <linearGradient id="ekg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#e8d5ff;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#d8b4fe;stop-opacity:1" />
@@ -34,7 +36,7 @@
 
     <!-- 面板背景层 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" />
+      <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" draggable="false" />
       <div class="absolute inset-0 bg-gradient-to-br from-black/95 via-black/80 to-black/95 backdrop-blur-md"></div>
     </div>
 
@@ -42,37 +44,38 @@
     <div 
       v-if="isMinimized" 
       @click="handleBallClick"
-      class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
+      class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 动态浮动音符粒子 -->
+      <!-- 动态音符粒子 -->
       <div class="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none">
-        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-6 h-6 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
+        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
       
-      <!-- Pingu 身体形态 - 稍稍左移 (translate-x 从 -1 改为 -2) -->
-      <div class="relative w-[5.5rem] h-[5.5rem] flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <!-- Pingu 主体图片 -->
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+      <!-- Pingu 身体形态 - 缩小并向左偏移 -->
+      <div class="relative w-20 h-20 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-3" :class="{ 'animate-pingu-sway': isPlay }">
+        <!-- Pingu 主体图片 (contain模式保证完整) -->
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
-        <!-- 耳机缩小 10% (从 130% 回到 120%) -->
-        <svg viewBox="0 0 100 100" class="absolute inset-[-15px] w-[120%] h-[120%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-          <path d="M25 45 A 25 25 0 0 1 75 45" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-          <rect x="18" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-          <rect x="70" y="40" width="12" height="24" rx="5" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+        <!-- 耳机比例缩小 -->
+        <svg viewBox="0 0 100 100" class="absolute inset-[-18px] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+          <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_10px_rgba(192,132,252,0.6)]" transform="translate(8, 0)" />
+          <rect x="10" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
+          <rect x="76" y="40" width="14" height="28" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" transform="translate(8, 0)" />
         </svg>
       </div>
     </div>
 
-    <!-- 完整面板模式 (代码保持逻辑不变) -->
+    <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 text-white animate-fade-in">
-      <div class="flex items-center justify-between cursor-move drag-handle">
+      <div class="flex items-center justify-between cursor-move">
         <div class="flex items-center space-x-2">
           <div :class="['w-2 h-2 rounded-full shadow-lg transition-all duration-500', isSyncing ? 'bg-green-400 shadow-[0_0_10px_#4ade80]' : 'bg-gray-500']"></div>
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
+          <!-- 心跳音符 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-6 h-6">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" />
@@ -90,6 +93,7 @@
         </div>
       </div>
 
+      <!-- 设置界面 -->
       <div v-if="isSetting" class="flex-1 flex flex-col justify-center space-y-3 py-2">
         <div class="text-[9px] text-purple-400 uppercase tracking-widest font-black">Endpoint</div>
         <input 
@@ -97,11 +101,12 @@
           type="text" 
           @mousedown.stop
           placeholder="https://..."
-          class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-purple-500/50 text-white"
+          class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-purple-500/50 text-white placeholder:text-gray-600 transition-all"
         />
         <button @click="saveServerUrl" class="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/30 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Deploy</button>
       </div>
 
+      <!-- 主界面 -->
       <div v-else class="flex-1 flex flex-col justify-center space-y-3">
         <div v-if="!isSyncing" class="space-y-3">
           <input 
@@ -113,11 +118,11 @@
             class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 text-white text-center tracking-[0.3em] uppercase font-mono"
           />
           <div class="grid grid-cols-2 gap-2">
-            <button @click="handleJoin('private')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase">2P</button>
-            <button @click="handleJoin('public')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase">Multi</button>
+            <button @click="handleJoin('private')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase transition-all active:scale-95">2P</button>
+            <button @click="handleJoin('public')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase transition-all active:scale-95">Multi</button>
           </div>
         </div>
-        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/5 backdrop-blur-xl">
+        <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-xl">
           <div class="text-[8px] text-purple-400 uppercase tracking-[0.5em] font-black">Quantum Room</div>
           <div class="text-lg font-mono font-black text-white tracking-[0.3em]">{{ roomId }}</div>
           <button @click="leaveRoom" class="text-[8px] text-red-500 font-black hover:text-red-400 uppercase tracking-widest mt-1">Disconnect</button>
@@ -144,12 +149,13 @@ const { isPlay } = storeToRefs(playerStore);
 
 const roomInput = ref('');
 const isSetting = ref(false);
-const isMinimized = ref(true);
+const isMinimized = ref(false); // 默认不收起，确保界面可见
 const serverUrlInput = ref('');
 
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
+let dragStartTime = 0;
 
 const panelStyle = computed(() => {
   const style: any = {
@@ -180,6 +186,8 @@ const handleMouseDown = (e: MouseEvent) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) return;
   
   isDragging.value = true;
+  dragStartTime = Date.now();
+  
   dragOffset.value = {
     x: e.clientX - position.value.x,
     y: (window.innerHeight - e.clientY) - position.value.y
@@ -197,7 +205,7 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => {
     setTimeout(() => {
       isDragging.value = false;
-    }, 50);
+    }, 100);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
@@ -207,7 +215,8 @@ const handleMouseDown = (e: MouseEvent) => {
 };
 
 const handleBallClick = () => {
-  if (!isDragging.value) {
+  const duration = Date.now() - dragStartTime;
+  if (duration < 200) {
     toggleMinimize();
   }
 };
@@ -245,10 +254,6 @@ const leaveRoom = () => {
 </script>
 
 <style scoped>
-.dragging-active {
-  transition: none !important;
-}
-
 @keyframes note-float-1 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
   33% { transform: translate(-30px, -30px) rotate(-30deg) scale(1.4); }
