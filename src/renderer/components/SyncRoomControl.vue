@@ -1,9 +1,10 @@
 <template>
   <div 
-    class="sync-room-control fixed left-4 bottom-24 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] select-none border border-white/20 transition-all duration-500 ease-in-out"
+    class="sync-room-control fixed left-4 bottom-24 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[9999] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
+    :class="{ 'border border-white/20': !isMinimized }"
   >
-    <!-- 渐变定义 (全局可用) -->
+    <!-- 渐变定义 -->
     <svg width="0" height="0" class="absolute">
       <defs>
         <linearGradient id="note-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -13,33 +14,28 @@
       </defs>
     </svg>
 
-    <!-- 背景层 -->
-    <div class="absolute inset-0 z-0">
+    <!-- 面板背景层 -->
+    <div v-if="!isMinimized" class="absolute inset-0 z-0">
       <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-50" />
       <div class="absolute inset-0 bg-gradient-to-br from-black/90 via-black/70 to-black/95 backdrop-blur-md"></div>
     </div>
 
-    <!-- 悬浮球模式 (收起时) -->
+    <!-- Siri 式悬浮球 (收起时) -->
     <div 
       v-if="isMinimized" 
       @click="toggleMinimize"
-      class="relative z-20 w-12 h-12 flex items-center justify-center cursor-pointer group"
+      class="relative z-20 w-14 h-14 flex items-center justify-center cursor-pointer group overflow-visible"
     >
-      <!-- 动态呼吸光晕，放歌时加速且变紫色 -->
-      <div 
-        :class="[
-          'absolute inset-0 rounded-full transition-all duration-1000',
-          isPlay ? 'bg-purple-500/30 animate-music-beat' : 'bg-blue-500/20 animate-tech-pulse'
-        ]"
-      ></div>
+      <!-- Siri 核心流体层 -->
+      <div class="absolute inset-0 flex items-center justify-center overflow-visible">
+        <!-- 多个弥散发光圆球模拟流体 -->
+        <div :class="['absolute w-12 h-12 rounded-full blur-xl opacity-60 mix-blend-screen', isPlay ? 'bg-purple-500 animate-siri-1' : 'bg-blue-500 animate-siri-1']"></div>
+        <div :class="['absolute w-10 h-10 rounded-full blur-lg opacity-70 mix-blend-screen', isPlay ? 'bg-blue-400 animate-siri-2' : 'bg-cyan-400 animate-siri-2']"></div>
+        <div :class="['absolute w-8 h-8 rounded-full blur-md opacity-80 mix-blend-screen', isPlay ? 'bg-pink-500 animate-siri-3' : 'bg-indigo-500 animate-siri-3']"></div>
+      </div>
       
-      <div 
-        :class="[
-          'relative w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all duration-500',
-          isPlay ? 'bg-gradient-to-tr from-purple-900/80 to-indigo-800/80 shadow-[0_0_20px_rgba(168,85,247,0.6)] scale-110' : 'bg-gradient-to-tr from-gray-900/80 to-gray-800/80'
-        ]"
-      >
-        <!-- 紫色渐变音符 -->
+      <!-- 中心图标 -->
+      <div class="relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 backdrop-blur-md border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
         <svg viewBox="0 0 24 24" class="w-5 h-5 transition-transform duration-500" :class="{ 'animate-spin-slow': isPlay }">
           <path fill="url(#note-gradient)" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
@@ -104,7 +100,7 @@
       </div>
 
       <!-- 底部拖动手柄 -->
-      <div class="absolute bottom-1 right-1 w-3 h-3 cursor-nwse-resize opacity-20 hover:opacity-100 transition-opacity">
+      <div class="absolute bottom-1 right-1 w-3 h-3 cursor-nwse-resize opacity-20 hover:opacity-100 transition-opacity text-white">
         <svg viewBox="0 0 24 24" class="w-full h-full fill-current"><path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 14H20V12H22V14Z"/></svg>
       </div>
     </div>
@@ -134,13 +130,14 @@ onMounted(() => {
 const panelStyle = computed(() => {
   if (isMinimized.value) {
     return {
-      width: '48px',
-      height: '48px',
+      width: '56px',
+      height: '56px',
       borderRadius: '50%',
       padding: '0',
       background: 'transparent',
       border: 'none',
-      boxShadow: 'none'
+      boxShadow: 'none',
+      overflow: 'visible'
     };
   }
   return {
@@ -148,7 +145,8 @@ const panelStyle = computed(() => {
     height: '180px',
     resize: 'both',
     minWidth: '160px',
-    minHeight: '160px'
+    minHeight: '160px',
+    background: '#000'
   };
 });
 
@@ -181,26 +179,31 @@ const leaveRoom = () => {
 </script>
 
 <style scoped>
-.animate-tech-pulse {
-  animation: techPulse 3s infinite ease-in-out;
+/* Siri 式流体动画 */
+@keyframes siri-1 {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+  33% { transform: scale(1.2) translate(5px, -5px); opacity: 0.4; }
+  66% { transform: scale(0.9) translate(-5px, 5px); opacity: 0.7; }
 }
 
-.animate-music-beat {
-  animation: musicBeat 0.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes siri-2 {
+  0%, 100% { transform: scale(1.1) translate(0, 0); opacity: 0.5; }
+  33% { transform: scale(0.8) translate(-8px, 8px); opacity: 0.8; }
+  66% { transform: scale(1.3) translate(8px, -8px); opacity: 0.3; }
 }
+
+@keyframes siri-3 {
+  0%, 100% { transform: scale(0.9) translate(0, 0); opacity: 0.7; }
+  33% { transform: scale(1.4) translate(10px, 10px); opacity: 0.4; }
+  66% { transform: scale(1.1) translate(-10px, -10px); opacity: 0.6; }
+}
+
+.animate-siri-1 { animation: siri-1 4s infinite ease-in-out; }
+.animate-siri-2 { animation: siri-2 5s infinite ease-in-out; }
+.animate-siri-3 { animation: siri-3 3s infinite ease-in-out; }
 
 .animate-spin-slow {
-  animation: spin 4s linear infinite;
-}
-
-@keyframes techPulse {
-  0%, 100% { transform: scale(0.8); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.2; }
-}
-
-@keyframes musicBeat {
-  0%, 100% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4); }
-  50% { transform: scale(1.3); opacity: 0.2; box-shadow: 0 0 20px 10px rgba(168, 85, 247, 0); }
+  animation: spin 6s linear infinite;
 }
 
 @keyframes spin {
