@@ -3,7 +3,11 @@
     ref="panelRef"
     class="sync-room-control fixed z-[9999] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
-    :class="{ 'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden': !isMinimized, 'overflow-visible': isMinimized }"
+    :class="{ 
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden': !isMinimized, 
+      'overflow-visible': isMinimized,
+      'dragging-active': isDragging 
+    }"
     @mousedown="handleMouseDown"
   >
     <!-- 渐变定义 -->
@@ -12,6 +16,15 @@
         <linearGradient id="note-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
           <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
+        </linearGradient>
+        <!-- 为耳机准备的炫彩渐变 -->
+        <linearGradient id="headphone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:1">
+            <animate attributeName="stop-color" values="#ff00ff;#00ffff;#ff00ff" dur="3s" repeatCount="indefinite" />
+          </stop>
+          <stop offset="100%" style="stop-color:#00ffff;stop-opacity:1">
+            <animate attributeName="stop-color" values="#00ffff;#ff00ff;#00ffff" dur="3s" repeatCount="indefinite" />
+          </stop>
         </linearGradient>
       </defs>
     </svg>
@@ -30,27 +43,27 @@
     >
       <!-- 动态浮动音符 (取代原来的色球) -->
       <div class="absolute inset-0 flex items-center justify-center overflow-visible">
-        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-60 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
+        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
       
-      <!-- 外挂式耳机装饰 -->
-      <svg viewBox="0 0 100 100" class="absolute inset-[-10px] w-[120%] h-[120%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
-        <!-- 耳机梁：包裹在球体外部 -->
-        <path d="M20 50 A 30 30 0 0 1 80 50" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" class="drop-shadow-[0_0_5px_rgba(192,132,252,0.8)]" />
-        <!-- 左右耳罩：在圆球两侧 -->
-        <rect x="12" y="42" width="12" height="22" rx="5" fill="white" class="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
-        <rect x="76" y="42" width="12" height="22" rx="5" fill="white" class="drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+      <!-- 外挂式大耳机装饰 - 增加尺寸和渐变 -->
+      <svg viewBox="0 0 100 100" class="absolute inset-[-15px] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
+        <!-- 耳机梁 -->
+        <path d="M15 50 A 35 35 0 0 1 85 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="6" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+        <!-- 左右耳罩 -->
+        <rect x="5" y="40" width="14" height="26" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" />
+        <rect x="81" y="40" width="14" height="26" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" />
       </svg>
 
       <!-- Pingu 头部 (充满圆球) -->
-      <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white/20 shadow-2xl bg-black/40 backdrop-blur-sm z-20 group-hover:scale-110 transition-transform duration-500">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[1.8] translate-y-1.5" :class="{ 'animate-pingu-pulse': isPlay }" />
+      <div class="relative w-12 h-11 rounded-full overflow-hidden border-2 border-white/30 shadow-2xl bg-black/40 backdrop-blur-sm z-20 group-hover:scale-110 transition-transform duration-500">
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-cover scale-[2.0] translate-y-2" :class="{ 'animate-pingu-pulse': isPlay }" />
       </div>
     </div>
 
-    <!-- 完整面板模式 (代码保持逻辑不变) -->
+    <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 text-white animate-fade-in">
       <div class="flex items-center justify-between cursor-move drag-handle">
         <div class="flex items-center space-x-2">
@@ -139,7 +152,7 @@ const panelStyle = computed(() => {
   };
 
   if (isMinimized.value) {
-    style.width = '64px'; // 稍微调大一点以容纳外部耳机
+    style.width = '64px'; 
     style.height = '64px';
     style.borderRadius = '50%';
     style.padding = '0';
@@ -159,6 +172,8 @@ const panelStyle = computed(() => {
 });
 
 const handleMouseDown = (e: MouseEvent) => {
+  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) return;
+  
   isDragging.value = true;
   dragOffset.value = {
     x: e.clientX - position.value.x,
@@ -184,7 +199,8 @@ const handleMouseDown = (e: MouseEvent) => {
   document.addEventListener('mouseup', handleMouseUp);
 };
 
-const handleBallClick = () => {
+const handleBallClick = (e: MouseEvent) => {
+  // 只有非拖拽情况下才触发最小化切换
   if (!isDragging.value) {
     toggleMinimize();
   }
@@ -223,31 +239,36 @@ const leaveRoom = () => {
 </script>
 
 <style scoped>
+/* 拖拽时禁用过渡动画，保证丝滑感 */
+.dragging-active {
+  transition: none !important;
+}
+
 /* 音符浮动动画 */
 @keyframes note-float-1 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(-15px, -15px) rotate(-20deg) scale(1.2); }
-  66% { transform: translate(10px, -25px) rotate(20deg) scale(0.8); }
+  33% { transform: translate(-20px, -20px) rotate(-20deg) scale(1.3); }
+  66% { transform: translate(15px, -30px) rotate(20deg) scale(0.8); }
 }
 @keyframes note-float-2 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(15px, -10px) rotate(15deg) scale(1.1); }
-  66% { transform: translate(-5px, -30px) rotate(-15deg) scale(0.9); }
+  33% { transform: translate(20px, -15px) rotate(15deg) scale(1.2); }
+  66% { transform: translate(-10px, -35px) rotate(-15deg) scale(0.9); }
 }
 @keyframes note-float-3 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(0, -20px) rotate(-10deg) scale(1.3); }
-  66% { transform: translate(15px, -15px) rotate(10deg) scale(0.7); }
+  33% { transform: translate(0, -25px) rotate(-10deg) scale(1.4); }
+  66% { transform: translate(20px, -20px) rotate(10deg) scale(0.7); }
 }
 
 @keyframes headphone-vibrate {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.08); }
 }
 
 @keyframes pingu-pulse {
-  0%, 100% { transform: scale(1.8) translateY(6px); }
-  50% { transform: scale(1.9) translateY(4px); }
+  0%, 100% { transform: scale(2.0) translateY(8px); }
+  50% { transform: scale(2.1) translateY(6px); }
 }
 
 .animate-note-float-1 { animation: note-float-1 4s infinite ease-in-out; }
