@@ -1,7 +1,7 @@
 <template>
   <div
     ref="panelRef"
-    class="sync-room-control fixed z-[9999] select-none transition-all duration-700 ease-in-out"
+    class="sync-room-control fixed z-[10001] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
     :class="{
       'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden':
