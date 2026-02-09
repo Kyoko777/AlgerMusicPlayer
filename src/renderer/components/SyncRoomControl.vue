@@ -1,12 +1,11 @@
 <template>
   <div 
     ref="panelRef"
-    class="sync-room-control fixed z-[9999] select-none transition-all duration-700 ease-in-out"
+    class="sync-room-control fixed z-[9999] select-none"
     :style="panelStyle"
     :class="{ 
       'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden': !isMinimized, 
-      'overflow-visible bg-transparent': isMinimized,
-      'dragging-active': isDragging 
+      'overflow-visible bg-transparent': isMinimized
     }"
     @mousedown="handleMouseDown"
   >
@@ -32,9 +31,9 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 (展开模式) -->
-    <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" />
+    <!-- 面板背景层 -->
+    <div v-if="!isMinimized" class="absolute inset-0 z-0 pointer-events-none">
+      <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2] opacity-60" draggable="false" />
       <div class="absolute inset-0 bg-gradient-to-br from-black/95 via-black/80 to-black/95 backdrop-blur-md"></div>
     </div>
 
@@ -42,21 +41,17 @@
     <div 
       v-if="isMinimized" 
       @click="handleBallClick"
-      class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
+      class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 动态浮动音符粒子 -->
       <div class="absolute inset-0 flex items-center justify-center overflow-visible pointer-events-none">
-        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-6 h-6 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
+        <svg v-for="i in 3" :key="i" viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current opacity-80 mix-blend-screen', isPlay ? `animate-note-float-${i}` : 'opacity-20']" :style="{ color: i === 1 ? '#c084fc' : (i === 2 ? '#6366f1' : '#ec4899') }">
           <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
       
-      <!-- Pingu 身体形态 - 放大 10% 并在容器内向左微调 -->
-      <div class="relative w-[5.5rem] h-[5.5rem] flex items-center justify-center z-20 transition-transform duration-500 -translate-x-1" :class="{ 'animate-pingu-sway': isPlay }">
-        <!-- Pingu 主体图片 (含身体) -->
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+      <div class="relative w-20 h-20 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-1" :class="{ 'animate-pingu-sway': isPlay }">
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" draggable="false" />
         
-        <!-- 精准挂载在企鹅头上的炫彩大耳机 -->
         <svg viewBox="0 0 100 100" class="absolute inset-[-22px] w-[145%] h-[145%] pointer-events-none z-30 transition-all duration-500" :class="{ 'animate-headphone-vibrate': isPlay }">
           <path d="M17 50 A 33 33 0 0 1 83 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="8" stroke-linecap="round" class="drop-shadow-[0_0_12px_rgba(192,132,252,0.7)]" />
           <rect x="7" y="40" width="16" height="30" rx="7" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
@@ -67,13 +62,12 @@
 
     <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 text-white animate-fade-in">
-      <div class="flex items-center justify-between cursor-move drag-handle">
+      <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <div :class="['w-2 h-2 rounded-full shadow-lg transition-all duration-500', isSyncing ? 'bg-green-400 shadow-[0_0_10px_#4ade80]' : 'bg-gray-500']"></div>
           <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-3">
-          <!-- “心跳音符”按钮 -->
           <button @click.stop="toggleSettings" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-6 h-6">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" />
@@ -145,18 +139,20 @@ const { isPlay } = storeToRefs(playerStore);
 
 const roomInput = ref('');
 const isSetting = ref(false);
-const isMinimized = ref(true); // 默认收起
+const isMinimized = ref(true);
 const serverUrlInput = ref('');
 
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
-let dragDistance = 0; // 记录拖拽位移
+let dragStartTime = 0;
 
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`,
-    bottom: `${position.value.y}px`
+    bottom: `${position.value.y}px`,
+    // 关键点：拖拽时绝对不能有 transition，否则会卡顿或失效
+    transition: isDragging.value ? 'none' : 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
   };
 
   if (isMinimized.value) {
@@ -178,35 +174,28 @@ const panelStyle = computed(() => {
 });
 
 const handleMouseDown = (e: MouseEvent) => {
+  // 禁止在输入框和按钮上触发拖拽
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) return;
   
-  isDragging.value = false; // 初始设为 false
-  dragDistance = 0;
-  const startX = e.clientX;
-  const startY = e.clientY;
-
+  isDragging.value = true;
+  dragStartTime = Date.now();
+  
   dragOffset.value = {
     x: e.clientX - position.value.x,
     y: (window.innerHeight - e.clientY) - position.value.y
   };
   
   const handleMouseMove = (moveEvent: MouseEvent) => {
-    const dist = Math.sqrt(Math.pow(moveEvent.clientX - startX, 2) + Math.pow(moveEvent.clientY - startY, 2));
-    if (dist > 5) { // 只有位移超过 5px 才判定为拖拽
-      isDragging.value = true;
+    if (isDragging.value) {
       position.value = {
         x: moveEvent.clientX - dragOffset.value.x,
         y: (window.innerHeight - moveEvent.clientY) - dragOffset.value.y
       };
     }
-    dragDistance = dist;
   };
 
   const handleMouseUp = () => {
-    // 这里的 setTimeout 会延迟 isDragging 的重置，导致点击事件能读到正确的状态
-    setTimeout(() => {
-      isDragging.value = false;
-    }, 100);
+    isDragging.value = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
@@ -215,9 +204,10 @@ const handleMouseDown = (e: MouseEvent) => {
   document.addEventListener('mouseup', handleMouseUp);
 };
 
-const handleBallClick = (e: MouseEvent) => {
-  // 只有位移非常小时，才判定为点击
-  if (dragDistance < 5) {
+const handleBallClick = () => {
+  // 如果按下时间很短（< 200ms），则判定为点击而非拖拽
+  const duration = Date.now() - dragStartTime;
+  if (duration < 200) {
     toggleMinimize();
   }
 };
@@ -255,10 +245,6 @@ const leaveRoom = () => {
 </script>
 
 <style scoped>
-.dragging-active {
-  transition: none !important;
-}
-
 @keyframes note-float-1 {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
   33% { transform: translate(-30px, -30px) rotate(-30deg) scale(1.4); }
