@@ -62,17 +62,18 @@
         >
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-20 h-20 object-contain drop-shadow-2xl" />
           
-          <!-- 蓝色猫爪果冻发送按钮 - 调高透明度 -->
+          <!-- 真·蓝色猫爪果冻发送按钮 -->
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div class="w-full h-full bg-blue-400/40 backdrop-blur-[2px] rounded-full flex items-center justify-center border-4 border-blue-300/60 animate-jelly">
-              <svg viewBox="0 0 24 24" class="w-16 h-16 fill-blue-100/90 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]">
-                <path d="M12,2C15.31,2 18,4.69 18,8C18,11.31 15.31,14 12,14C8.69,14 6,11.31 6,8C6,4.69 8.69,2 12,2M12,16C15.31,16 18,18.69 18,22H6C6,18.69 8.69,16 12,16M12,10.5A1.5,1.5 0 0,1 10.5,9A1.5,1.5 0 0,1 12,7.5A1.5,1.5 0 0,1 13.5,9A1.5,1.5 0 0,1 12,10.5M12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5Z" />
+            <div class="w-full h-full bg-blue-400/60 backdrop-blur-[4px] rounded-full flex items-center justify-center border-4 border-blue-200/80 animate-jelly shadow-[0_0_20px_rgba(59,130,246,0.6)]">
+              <!-- 精心绘制的猫爪 SVG -->
+              <svg viewBox="0 0 100 100" class="w-16 h-16 fill-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+                <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <!-- 环绕的小表情 - 固定 12 个位置防止跳闪 -->
+        <!-- 环绕的小表情 -->
         <div 
           v-for="id in 12" 
           :key="id"
@@ -108,7 +109,7 @@
         </div>
       </div>
 
-      <!-- 内容区 (面板模式也使用大气泡布局，固定 12 个防止跳闪) -->
+      <!-- 内容区 (面板模式) -->
       <div class="flex-1 relative flex items-center justify-center overflow-visible">
         <div v-if="showEmojiPicker" class="relative w-full h-full flex items-center justify-center animate-picker-fade-in">
           <div class="absolute w-40 h-40 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm"></div>
@@ -116,8 +117,8 @@
           <div @click="sendEmoji(selectedEmojiId)" class="relative z-20 w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 active:scale-90 shadow-lg">
             <img :src="getEmojiUrl(selectedEmojiId)" class="w-16 h-16 object-contain" />
             <div class="absolute inset-0 opacity-0 group-hover/pan:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div class="w-full h-full bg-blue-500/20 backdrop-blur-[2px] rounded-full border-2 border-blue-400/30 animate-jelly">
-                <svg viewBox="0 0 24 24" class="w-12 h-12 fill-blue-100/80 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M12,2C15.31,2 18,4.69 18,8C18,11.31 15.31,14 12,14C8.69,14 6,11.31 6,8C6,4.69 8.69,2 12,2M12,16C15.31,16 18,18.69 18,22H6C6,18.69 8.69,16 12,16M12,10.5A1.5,1.5 0 0,1 10.5,9A1.5,1.5 0 0,1 12,7.5A1.5,1.5 0 0,1 13.5,9A1.5,1.5 0 0,1 12,10.5M12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5Z" /></svg>
+              <div class="w-full h-full bg-blue-500/40 backdrop-blur-[2px] rounded-full border-2 border-blue-300/60 animate-jelly">
+                <svg viewBox="0 0 100 100" class="w-12 h-12 fill-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
               </div>
             </div>
           </div>
@@ -172,17 +173,12 @@ const showEmojiPicker = ref(false);
 const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
 
-// 使用固定 12 个位置的逻辑，防止 hover 时由于数组长度变化导致的计算跳闪
 const getOrbitStyle = (index: number, radius: number = 95) => {
-  const angle = (index * 360) / 12; // 固定除以 12
-  return {
-    transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)`
-  };
+  const angle = (index * 360) / 12;
+  return { transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)` };
 };
 
-const handleEmojiHover = (id: number) => {
-  selectedEmojiId.value = id;
-};
+const handleEmojiHover = (id: number) => { selectedEmojiId.value = id; };
 
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
@@ -203,11 +199,7 @@ const triggerBubble = (emojiId: number) => {
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
 
-const openDevTools = () => {
-  // @ts-ignore
-  if (window.ipcRenderer) window.ipcRenderer.send('open-dev-tools');
-};
-
+const openDevTools = () => { if (window.ipcRenderer) window.ipcRenderer.send('open-dev-tools'); };
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
 
 const panelStyle = computed(() => {
@@ -223,29 +215,21 @@ const panelStyle = computed(() => {
 
 const handleMouseDown = (e: MouseEvent) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) return;
-  isDragging.value = true;
-  dragStartTime = Date.now();
+  isDragging.value = true; dragStartTime = Date.now();
   dragOffset.value = { x: e.clientX - position.value.x, y: window.innerHeight - e.clientY - position.value.y };
   const handleMouseMove = (moveEvent: MouseEvent) => {
-    if (isDragging.value) {
-      position.value = { x: moveEvent.clientX - dragOffset.value.x, y: window.innerHeight - moveEvent.clientY - dragOffset.value.y };
-    }
+    if (isDragging.value) position.value = { x: moveEvent.clientX - dragOffset.value.x, y: window.innerHeight - moveEvent.clientY - dragOffset.value.y };
   };
   const handleMouseUp = () => {
     setTimeout(() => { isDragging.value = false; }, 50);
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp);
   };
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', handleMouseUp);
+  document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
 
 const handleBallClick = () => {
   const duration = Date.now() - dragStartTime;
-  if (duration < 200) {
-    if (showEmojiPicker.value) showEmojiPicker.value = false;
-    else toggleMinimize();
-  }
+  if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); }
 };
 
 const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; isSetting.value = false; };
@@ -267,22 +251,12 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
   100% { transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg); opacity: 0; }
 }
 .bubble-animation { animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
-
-@keyframes picker-fade-in {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
+@keyframes picker-fade-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .animate-picker-fade-in { animation: picker-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-@keyframes jelly {
-  0%, 100% { transform: scale(1, 1); }
-  33% { transform: scale(1.15, 0.85); }
-  66% { transform: scale(0.85, 1.15); }
-}
+@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
 .animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
-
-@keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
 .animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
+@keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
