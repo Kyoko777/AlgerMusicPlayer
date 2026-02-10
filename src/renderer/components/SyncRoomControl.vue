@@ -34,24 +34,26 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 使用新版 Pingu 背景并应用紫色渐变滤镜 -->
+    <!-- 面板背景层 - 优化为淡紫色渐变与高清图显示 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <!-- 基础紫色渐变底色 -->
-      <div class="absolute inset-0 bg-gradient-to-br from-[#c084fc] via-[#a855f7] to-[#6366f1]"></div>
-      <!-- Pingu 背景图，通过 hue-rotate 将红色转为紫色，并使用 mix-blend-mode 融合 -->
+      <!-- 淡紫色渐变底色 -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#f5f3ff] via-[#ede9fe] to-[#ddd6fe] dark:from-[#1e1b4b] dark:via-[#312e81] dark:to-[#4338ca]"></div>
+      
+      <!-- Pingu 背景图，使用更柔和的滤镜保留图片细节 -->
       <img
         src="@/assets/sync/pingu_bg.jpg"
-        class="w-full h-full object-cover mix-blend-overlay opacity-60 grayscale brightness-125"
-        :class="theme === 'dark' ? 'contrast-125' : 'contrast-100'"
+        class="w-full h-full object-cover mix-blend-multiply opacity-40 grayscale brightness-110"
+        :class="theme === 'dark' ? 'invert opacity-20' : ''"
         draggable="false"
       />
-      <!-- 磨砂玻璃层 -->
+      
+      <!-- 高清磨砂玻璃层 -->
       <div
-        class="absolute inset-0 backdrop-blur-md"
+        class="absolute inset-0 backdrop-blur-xl"
         :class="
           theme === 'dark'
             ? 'bg-black/40'
-            : 'bg-white/20'
+            : 'bg-white/30'
         "
       ></div>
     </div>
@@ -166,7 +168,6 @@
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电同步线 -->
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" />
             </svg>
           </button>
