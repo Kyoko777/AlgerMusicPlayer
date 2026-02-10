@@ -124,9 +124,9 @@
 
       <!-- 内容区 -->
       <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
-        <!-- 1. 表情宫格 -->
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full px-1 animate-panel-pop">
-          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-2xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[80%] h-[80%] object-contain" /></div>
+        <!-- 1. 表情宫格 - 缩小方块尺寸 -->
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-4 w-full px-8 animate-panel-pop">
+          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[75%] h-[75%] object-contain" /></div>
         </div>
 
         <!-- 2. 服务器设置面板 -->
