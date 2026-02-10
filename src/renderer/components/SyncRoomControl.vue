@@ -36,11 +36,12 @@
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
       <div class="absolute inset-0 bg-[#fdfcff] dark:bg-[#0f172a]"></div>
       
-      <!-- Pingu 背景图 - 左右与输入框对齐，适当缩小 -->
-      <div class="absolute inset-x-4 bottom-4 top-24 flex items-center justify-center overflow-hidden rounded-xl">
+      <!-- Pingu 背景图 - 左右固定边距，确保绝对居中 -->
+      <div class="absolute left-6 right-6 bottom-6 top-24 flex items-center justify-center overflow-hidden rounded-2xl">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-full h-full object-contain opacity-30 dark:opacity-10 grayscale-[0.1]"
+          class="max-w-[85%] max-h-[85%] object-contain opacity-40 dark:opacity-10 grayscale-[0.1]"
+          style="margin: auto;"
           draggable="false"
         />
       </div>
@@ -104,9 +105,9 @@
     </div>
 
     <!-- 4. 完整面板模式 (展开) -->
-    <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- 顶部状态栏 - 恢复 11:30 经典按钮组布局 -->
-      <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 pb-3 mb-4">
+    <div v-else class="relative z-10 h-full flex flex-col animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
+      <!-- 顶部状态栏 - 移除 p-4 改为手动控制间距 -->
+      <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 px-4 py-3 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-2 cursor-move flex-1 h-full">
           <div :class="['w-2.5 h-2.5 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-300']"></div>
           <span class="text-[11px] font-black tracking-tight opacity-70 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
@@ -116,7 +117,7 @@
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
           <button @click="toggleSettings" class="p-1.5 rounded-lg hover:bg-purple-500/10 transition-all active:scale-95" :class="{ 'bg-purple-500/20 shadow-inner': isSetting }">
-            <svg viewBox="0 0 24 24" class="w-5 h-5 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 flex items-center justify-center mx-auto">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
@@ -128,36 +129,32 @@
         </div>
       </div>
 
-      <!-- 内容区 - 实现全量居中对齐 -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
+      <!-- 内容区 - 强制全量居中 -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full flex flex-col items-center">
         <!-- 1. 表情宫格 -->
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full px-1 animate-panel-pop">
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full px-6 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-2xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[80%] h-[80%] object-contain" /></div>
         </div>
 
         <!-- 2. 服务器设置面板 -->
-        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-2 px-1">
-          <div class="w-full text-center">
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.endpoint') }}</div>
-          </div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-4 px-6">
+          <div class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.endpoint') }}</div>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3.5 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          <button @click="saveServerUrl" class="w-full py-4 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
         <!-- 3. 同步主面板 -->
-        <div v-else class="w-full flex flex-col items-center space-y-5 pt-2 px-1">
+        <div v-else class="w-full flex flex-col items-center space-y-6 pt-4 px-6">
           <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-5">
-            <div class="w-full text-center">
-              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center">{{ t('sync.code') }}</div>
-            </div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
+            <div class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.code') }}</div>
+            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
             <div class="grid grid-cols-2 gap-3 w-full">
               <button @click="handleJoin('private')" class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all">{{ t('sync.privateRoom') }}</button>
               <button @click="handleJoin('public')" class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-3 py-8 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full">
-            <div class="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center">{{ t('sync.quantumRoom') }}</div>
+          <div v-else class="flex flex-col items-center justify-center space-y-4 py-10 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full">
+            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center">{{ t('sync.quantumRoom') }}</div>
             <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white w-full text-center">{{ roomId }}</div>
             <button @click="leaveRoom" class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
           </div>
