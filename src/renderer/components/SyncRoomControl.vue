@@ -55,7 +55,7 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 【收起模式】环形表情选择器 -->
+      <!-- 环形表情选择器 (收起模式独有) -->
       <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
@@ -83,7 +83,7 @@
           <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
-      <!-- 音符粒子 -->
+      <!-- 浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -103,10 +103,21 @@
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
+          <!-- 同步设置按钮 (完美的左右对称加粗音符) -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
-              <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h2.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M21 18V7h2.5v11H21z" />
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L23.5 7" />
+              <!-- 左音符头 -->
+              <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
+              <!-- 左音符竖条 (加粗并精准对齐) -->
+              <rect x="7.5" y="4" width="2.5" height="14" fill="url(#note-gradient)" />
+              <!-- 右音符头 -->
+              <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
+              <!-- 右音符竖条 (加粗并精准对齐) -->
+              <rect x="19.5" y="4" width="2.5" height="14" fill="url(#note-gradient)" />
+              <!-- 连接横杠 -->
+              <path fill="url(#note-gradient)" d="M7.5,4 L22,4 L22,7.5 L7.5,7.5 Z" />
+              <!-- 核心心电同步线 -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M10,10 L12,11 L13,8 L14,12 L16,9 L18,11" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
@@ -114,20 +125,22 @@
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+        <!-- 1. 表情宫格模式 (3x4) -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
+        <!-- 2. 服务器设置模式 (强对比度) -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
+        <!-- 3. 房间选择模式 (强对比度 + 还原按钮) -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
-            <!-- 去掉 --- 占位符的输入框 -->
             <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-3 text-lg text-center font-black tracking-[0.5em] bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
             <div class="grid grid-cols-2 gap-2 pt-1">
               <button @click="handleJoin('private')" class="py-3 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
@@ -196,8 +209,6 @@ const triggerBubble = (emojiId: number) => {
 };
 
 const openDevTools = () => {
-  console.log('[SyncControl] Clicked DevTools');
-  // @ts-ignore
   if (window.electron && window.electron.ipcRenderer) {
     window.electron.ipcRenderer.send('open-dev-tools');
   }
@@ -228,14 +239,8 @@ const handleMouseDown = (e: MouseEvent) => {
 };
 
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
-const toggleEmojiPicker = () => { 
-  showEmojiPicker.value = !showEmojiPicker.value; 
-  if (showEmojiPicker.value) isSetting.value = false;
-};
-const toggleSettings = () => { 
-  isSetting.value = !isSetting.value; 
-  if (isSetting.value) showEmojiPicker.value = false;
-};
+const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; if (showEmojiPicker.value) isSetting.value = false; };
+const toggleSettings = () => { isSetting.value = !isSetting.value; if (isSetting.value) showEmojiPicker.value = false; };
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
@@ -267,8 +272,6 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
-.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 .animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
 .animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
 .animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
