@@ -35,21 +35,24 @@
     <!-- 面板背景层 - 极其通透的淡紫色渐变 + 底部居中 Pingu 图 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl">
       <!-- 1. 极其清爽的淡紫色背景 -->
-      <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fafbff] to-[#f8f5ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
+      <div class="absolute inset-0 bg-[#fbfaff]"></div>
       
       <!-- 2. Pingu 背景图，底部居中放置 -->
-      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none">
+      <div class="absolute inset-0 flex items-end justify-center pointer-events-none">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[8%]"
+          class="w-full h-auto object-contain opacity-60 translate-y-[15%]"
           draggable="false"
         />
       </div>
       
-      <!-- 3. 高清磨砂玻璃层 -->
+      <!-- 3. 紫色渐变蒙层 (让背景更有氛围感) -->
+      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-purple-500/5 to-purple-500/10"></div>
+      
+      <!-- 4. 高清磨砂玻璃层 -->
       <div
         class="absolute inset-0 backdrop-blur-[2px]"
-        :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"
+        :class="theme === 'dark' ? 'bg-black/20' : 'bg-white/5'"
       ></div>
     </div>
 
@@ -121,7 +124,6 @@
       <!-- Pingu 身体形态 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
-        <!-- 耳机 -->
         <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
@@ -129,7 +131,7 @@
         </svg>
       </div>
 
-      <!-- 浮动音符粒子 -->
+      <!-- 动态浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -159,7 +161,7 @@
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电波微调至 y=8 位 -->
+              <!-- 心电波 -->
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
             </svg>
           </button>
@@ -168,14 +170,19 @@
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+        <!-- 1. 表情宫格模式 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
+
+        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
+
+        <!-- 3. 房间选择模式 -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
