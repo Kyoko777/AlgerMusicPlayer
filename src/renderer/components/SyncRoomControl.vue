@@ -4,12 +4,10 @@
     class="sync-room-control fixed z-[10001] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden':
-        !isMinimized,
-      'overflow-visible bg-transparent': isMinimized,
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20': !isMinimized,
+      'bg-transparent border-none': isMinimized,
       'dragging-active': isDragging
     }"
-    @mousedown="handleMouseDown"
   >
     <!-- 渐变与滤镜定义 -->
     <svg width="0" height="0" class="absolute">
@@ -34,16 +32,16 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 淡紫色渐变 + 底部居中 Pingu 图 -->
-    <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <!-- 1. 清爽的淡紫色渐变 -->
-      <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fdfaff] to-[#f5f0ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
+    <!-- 面板背景层 - 极其通透的淡紫色渐变 + 底部居中 Pingu 图 -->
+    <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl">
+      <!-- 1. 极其清爽的淡紫色背景 -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fafbff] to-[#f8f5ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
       
       <!-- 2. Pingu 背景图，底部居中放置 -->
-      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none overflow-hidden">
+      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[85%] h-auto object-contain opacity-50 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[5%]"
+          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[8%]"
           draggable="false"
         />
       </div>
@@ -51,16 +49,12 @@
       <!-- 3. 高清磨砂玻璃层 -->
       <div
         class="absolute inset-0 backdrop-blur-[2px]"
-        :class="
-          theme === 'dark'
-            ? 'bg-black/10'
-            : 'bg-white/5'
-        "
+        :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"
       ></div>
     </div>
 
-    <!-- 表情包浮动气泡层 (释放后的长路径) -->
-    <div class="absolute inset-0 pointer-events-none overflow-visible z-50">
+    <!-- 表情包浮动气泡层 (全局可见) -->
+    <div class="absolute inset-0 pointer-events-none overflow-visible z-[100]">
       <div
         v-for="bubble in activeBubbles"
         :key="bubble.id"
@@ -81,6 +75,7 @@
     <!-- Pingu 听歌形态 (收起模式) -->
     <div
       v-if="isMinimized"
+      @mousedown="handleMouseDown"
       @click="handleBallClick"
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
@@ -100,12 +95,8 @@
         </div>
       </div>
 
-      <!-- 表情包快捷选择面板 (环形轨道) -->
-      <div
-        v-if="showEmojiPicker"
-        class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right"
-        @mousedown.stop
-      >
+      <!-- 环形表情选择器 -->
+      <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
@@ -114,7 +105,6 @@
               <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             </div>
             <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
-              <!-- 迷你蓝色猫爪图标 -->
               <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
                 <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
               </svg>
@@ -129,28 +119,17 @@
       </div>
 
       <!-- Pingu 身体形态 -->
-      <div
-        class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2"
-        :class="{ 'animate-pingu-sway': isPlay }"
-      >
-        <img
-          src="@/assets/sync/pingu_head_v2.png"
-          class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
-          draggable="false"
-        />
-        <!-- 炫彩震动耳机 -->
-        <svg
-          viewBox="0 0 100 100"
-          class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500"
-          :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']"
-        >
+      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+        <!-- 耳机 -->
+        <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
           <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
 
-      <!-- 动态浮动音符粒子 -->
+      <!-- 浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -167,22 +146,21 @@
       <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-black tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+          <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 同步设置按钮 (精致极简版音符) -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电同步线 (上移 2px 版) -->
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,8 L11,9 L12.5,4 L14,11 L16,7 L19,9" />
+              <!-- 心电波微调至 y=8 位 -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
@@ -201,7 +179,7 @@
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-3 text-lg text-center font-black tracking-[0.4em] bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
+            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-3 text-lg text-center font-black tracking-[0.5em] bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
             <div class="grid grid-cols-2 gap-2 pt-1">
               <button @click="handleJoin('private')" class="py-3 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
               <button @click="handleJoin('public')" class="py-3 bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
@@ -294,7 +272,10 @@ const dragOffset = ref({ x: 0, y: 0 });
 let dragStartTime = 0;
 const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
 
-const sendEmoji = (id: number) => { syncStore.sendSync('send_emoji', { emojiId: id }); triggerBubble(id); };
+const sendEmoji = (id: number) => { 
+  syncStore.sendSync('send_emoji', { emojiId: id }); 
+  triggerBubble(id); 
+};
 
 watch(receivedEmoji, (newVal) => { 
   if (newVal) {
