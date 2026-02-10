@@ -34,26 +34,27 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 优化为淡紫色渐变与高清图显示 -->
+    <!-- 面板背景层 - 淡紫色渐变 + 右下角 Pingu 图 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <!-- 淡紫色渐变底色 -->
-      <div class="absolute inset-0 bg-gradient-to-br from-[#f5f3ff] via-[#ede9fe] to-[#ddd6fe] dark:from-[#1e1b4b] dark:via-[#312e81] dark:to-[#4338ca]"></div>
+      <!-- 1. 淡紫色渐变底色 (更清透) -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#fdfcfe] via-[#f5f3ff] to-[#ede9fe] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
       
-      <!-- Pingu 背景图，使用更柔和的滤镜保留图片细节 -->
-      <img
-        src="@/assets/sync/pingu_bg.jpg"
-        class="w-full h-full object-cover mix-blend-multiply opacity-40 grayscale brightness-110"
-        :class="theme === 'dark' ? 'invert opacity-20' : ''"
-        draggable="false"
-      />
+      <!-- 2. Pingu 背景图，精准停留在右下角 -->
+      <div class="absolute right-[-10%] bottom-[-10%] w-[110%] h-[110%] flex items-end justify-end pointer-events-none overflow-hidden">
+        <img
+          src="@/assets/sync/pingu_bg.jpg"
+          class="w-[85%] h-auto object-contain opacity-50 mix-blend-multiply dark:mix-blend-screen dark:opacity-20"
+          draggable="false"
+        />
+      </div>
       
-      <!-- 高清磨砂玻璃层 -->
+      <!-- 3. 高清磨砂玻璃层 (微弱模糊增加空间感) -->
       <div
-        class="absolute inset-0 backdrop-blur-xl"
+        class="absolute inset-0 backdrop-blur-[4px]"
         :class="
           theme === 'dark'
-            ? 'bg-black/40'
-            : 'bg-white/30'
+            ? 'bg-black/20'
+            : 'bg-white/10'
         "
       ></div>
     </div>
@@ -154,21 +155,21 @@
       <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-black tracking-tighter opacity-80 uppercase" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+          <span class="text-[10px] font-black tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 同步设置按钮 (精致轻量版音符) -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" />
+              <!-- 心电同步线作为唯一的连接 (高度微调至 y=7) -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
