@@ -50,40 +50,39 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 环形表情气泡选择器 (收起模式) -->
-      <div v-if="showEmojiPicker" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 z-[70] animate-picker-fade-in" @mousedown.stop>
+      <!-- 环形表情选择器 (缩小版，置于右侧) -->
+      <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <!-- 背景大气泡 -->
-        <div class="absolute inset-0 bg-white/10 backdrop-blur-3xl rounded-full border border-white/20 shadow-[0_32px_64px_rgba(0,0,0,0.3)]"></div>
+        <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         
         <!-- 中心大表情 (发送区) -->
         <div 
           @click="sendEmoji(selectedEmojiId)"
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20"
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20"
         >
-          <img :src="getEmojiUrl(selectedEmojiId)" class="w-20 h-20 object-contain drop-shadow-2xl" />
+          <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
           
-          <!-- 真·蓝色猫爪果冻发送按钮 -->
+          <!-- 迷你蓝色猫爪果冻 -->
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div class="w-full h-full bg-blue-400/60 backdrop-blur-[4px] rounded-full flex items-center justify-center border-4 border-blue-200/80 animate-jelly shadow-[0_0_20px_rgba(59,130,246,0.6)]">
-              <!-- 精心绘制的猫爪 SVG -->
-              <svg viewBox="0 0 100 100" class="w-16 h-16 fill-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+            <div class="w-full h-full bg-blue-400/50 backdrop-blur-[2px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-jelly shadow-[0_0_12px_rgba(59,130,246,0.5)]">
+              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
                 <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <!-- 环绕的小表情 -->
+        <!-- 环绕的小表情 (缩小版) -->
         <div 
           v-for="id in 12" 
           :key="id"
           @mouseenter="handleEmojiHover(id)"
-          class="absolute left-1/2 top-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10"
-          :style="getOrbitStyle(id - 1, 100)"
-          :class="{ 'opacity-40 grayscale-[0.5] scale-90': id !== selectedEmojiId }"
+          class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10"
+          :style="getOrbitStyle(id - 1, 72)"
+          :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }"
         >
           <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden">
-            <img :src="getEmojiUrl(id)" class="w-10 h-10 object-contain" />
+            <img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" />
           </div>
         </div>
       </div>
@@ -94,9 +93,8 @@
       </div>
     </div>
 
-    <!-- 完整面板模式 -->
+    <!-- 完整面板模式 (内部保持紧凑的大气泡) -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- 头部拖拽手柄 -->
       <div @mousedown="handleMouseDown" class="flex items-center justify-between cursor-move drag-handle border-b border-white/10 pb-2 mb-2">
         <div class="flex items-center space-x-1">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
@@ -109,23 +107,20 @@
         </div>
       </div>
 
-      <!-- 内容区 (面板模式) -->
       <div class="flex-1 relative flex items-center justify-center overflow-visible">
         <div v-if="showEmojiPicker" class="relative w-full h-full flex items-center justify-center animate-picker-fade-in">
-          <div class="absolute w-40 h-40 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm"></div>
-          
-          <div @click="sendEmoji(selectedEmojiId)" class="relative z-20 w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 active:scale-90 shadow-lg">
-            <img :src="getEmojiUrl(selectedEmojiId)" class="w-16 h-16 object-contain" />
+          <div class="absolute w-32 h-32 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm"></div>
+          <div @click="sendEmoji(selectedEmojiId)" class="relative z-20 w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 shadow-lg">
+            <img :src="getEmojiUrl(selectedEmojiId)" class="w-12 h-12 object-contain" />
             <div class="absolute inset-0 opacity-0 group-hover/pan:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div class="w-full h-full bg-blue-500/40 backdrop-blur-[2px] rounded-full border-2 border-blue-300/60 animate-jelly">
-                <svg viewBox="0 0 100 100" class="w-12 h-12 fill-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
+              <div class="w-full h-full bg-blue-500/30 backdrop-blur-[1px] rounded-full border border-blue-400/40 animate-jelly">
+                <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
               </div>
             </div>
           </div>
-
-          <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute w-8 h-8 cursor-pointer transition-all duration-300 hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 75)" :class="{ 'opacity-30 scale-75': id !== selectedEmojiId }">
+          <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute w-7 h-7 cursor-pointer transition-all duration-300 hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 58)" :class="{ 'opacity-20 scale-75': id !== selectedEmojiId }">
             <div class="w-full h-full rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm overflow-hidden">
-              <img :src="getEmojiUrl(id)" class="w-6 h-6 object-contain" />
+              <img :src="getEmojiUrl(id)" class="w-5 h-5 object-contain" />
             </div>
           </div>
         </div>
@@ -251,9 +246,24 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
   100% { transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg); opacity: 0; }
 }
 .bubble-animation { animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
-@keyframes picker-fade-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+@keyframes picker-pop-right {
+  from { opacity: 0; transform: translateY(-50%) scale(0.7) translateX(-20px); }
+  to { opacity: 1; transform: translateY(-50%) scale(1) translateX(0); }
+}
+.animate-ball-pop-right { animation: picker-pop-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+@keyframes picker-fade-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 .animate-picker-fade-in { animation: picker-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
+
+@keyframes jelly {
+  0%, 100% { transform: scale(1, 1); }
+  33% { transform: scale(1.15, 0.85); }
+  66% { transform: scale(0.85, 1.15); }
+}
 .animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 .animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
