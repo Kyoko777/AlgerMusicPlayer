@@ -32,43 +32,27 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 极其通透的淡紫色渐变 + 底部居中 Pingu 图 -->
-    <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl">
-      <!-- 1. 极其清爽的淡紫色背景 -->
-      <div class="absolute inset-0 bg-[#fbfaff]"></div>
+    <!-- 面板背景层 - 使用新版 Pingu 背景 -->
+    <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
+      <!-- 底色：更清透的淡紫色 -->
+      <div class="absolute inset-0 bg-[#f5f3ff] dark:bg-[#0f172a]"></div>
       
-      <!-- 2. Pingu 背景图，底部居中放置 -->
-      <div class="absolute inset-0 flex items-end justify-center pointer-events-none">
+      <!-- Pingu 背景图：底部居中放置，提高可见度 -->
+      <div class="absolute inset-x-0 bottom-0 flex justify-center items-end h-full">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-full h-auto object-contain opacity-60 translate-y-[15%]"
-          draggable="false"
+          class="w-[90%] h-auto object-contain opacity-50 translate-y-[5%]"
+          :style="theme === 'dark' ? 'filter: brightness(0.7) contrast(1.2) hue-rotate(240deg);' : ''"
         />
       </div>
       
-      <!-- 3. 紫色渐变蒙层 (让背景更有氛围感) -->
-      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-purple-500/5 to-purple-500/10"></div>
-      
-      <!-- 4. 高清磨砂玻璃层 -->
-      <div
-        class="absolute inset-0 backdrop-blur-[2px]"
-        :class="theme === 'dark' ? 'bg-black/20' : 'bg-white/5'"
-      ></div>
+      <!-- 磨砂玻璃层 (微弱，不遮挡图片) -->
+      <div class="absolute inset-0 backdrop-blur-[1px] bg-white/5 dark:bg-black/10"></div>
     </div>
 
-    <!-- 表情包浮动气泡层 (全局可见) -->
-    <div class="absolute inset-0 pointer-events-none overflow-visible z-[100]">
-      <div
-        v-for="bubble in activeBubbles"
-        :key="bubble.id"
-        class="absolute bubble-animation"
-        :style="{
-          left: bubble.x + 'px',
-          bottom: bubble.y + 'px',
-          '--drift': bubble.drift + 'px'
-        }"
-      >
-        <!-- 蓝色气泡外圈 -->
+    <!-- 表情包浮动气泡层 (释放后的路径) -->
+    <div class="absolute inset-0 pointer-events-none overflow-visible z-50">
+      <div v-for="bubble in activeBubbles" :key="bubble.id" class="absolute bubble-animation" :style="{ left: bubble.x + 'px', bottom: bubble.y + 'px', '--drift': bubble.drift + 'px' }">
         <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-[0_0_20px_rgba(59,130,246,0.4)] bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
           <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-contain rounded-full" />
         </div>
@@ -85,17 +69,10 @@
     >
       <!-- 【待命气泡层】 -->
       <div class="absolute inset-0 pointer-events-none overflow-visible z-30">
-        <div 
-          v-for="(queuedEmojiId, index) in emojiQueue.slice(0, 5)" 
-          :key="index"
-          class="absolute w-8 h-8 rounded-full border-2 border-blue-400/50 bg-blue-100/30 backdrop-blur-sm overflow-hidden animate-queue-hover"
-          :style="getQueuePosition(index)"
-        >
+        <div v-for="(queuedEmojiId, index) in emojiQueue.slice(0, 5)" :key="index" class="absolute w-8 h-8 rounded-full border-2 border-blue-400/50 bg-blue-100/30 backdrop-blur-sm overflow-hidden animate-queue-hover" :style="getQueuePosition(index)">
           <img :src="getEmojiUrl(queuedEmojiId)" class="w-full h-full object-contain opacity-80" />
         </div>
-        <div v-if="emojiQueue.length > 5" class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg border border-white">
-          +{{ emojiQueue.length - 5 }}
-        </div>
+        <div v-if="emojiQueue.length > 5" class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg border border-white">+{{ emojiQueue.length - 5 }}</div>
       </div>
 
       <!-- 环形表情选择器 -->
@@ -108,20 +85,16 @@
               <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             </div>
             <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
-              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
-                <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
-              </svg>
+              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
             </div>
           </div>
         </div>
         <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
-          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden">
-            <img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" />
-          </div>
+          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
         </div>
       </div>
 
-      <!-- Pingu 身体形态 -->
+      <!-- Pingu 身体 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
         <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
@@ -130,8 +103,6 @@
           <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
-
-      <!-- 动态浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -139,16 +110,12 @@
       </div>
     </div>
 
-    <!-- 完整面板模式 -->
-    <div
-      v-else
-      class="relative z-10 h-full flex flex-col justify-between p-4 animate-fade-in"
-      :class="theme === 'dark' ? 'text-white' : 'text-gray-900'"
-    >
-      <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+    <!-- 【展开模式】 -->
+    <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
+      <div class="flex items-center justify-between border-b border-white/20 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+          <span class="text-[10px] font-black tracking-tighter opacity-90 uppercase" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
@@ -161,7 +128,6 @@
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电波 -->
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
             </svg>
           </button>
@@ -169,20 +135,15 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
-        <!-- 1. 表情宫格模式 -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 relative">
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
-
-        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
-
-        <!-- 3. 房间选择模式 -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
@@ -192,7 +153,7 @@
               <button @click="handleJoin('public')" class="py-3 bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white border-purple-200 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl">
+          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white/60 border-purple-200 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl">
             <div class="text-[8px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.3em]">{{ t('sync.quantumRoom') }}</div>
             <div class="text-3xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white">{{ roomId }}</div>
             <button @click="leaveRoom" class="text-[10px] text-red-500 font-black uppercase mt-2 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
@@ -279,17 +240,9 @@ const dragOffset = ref({ x: 0, y: 0 });
 let dragStartTime = 0;
 const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
 
-const sendEmoji = (id: number) => { 
-  syncStore.sendSync('send_emoji', { emojiId: id }); 
-  triggerBubble(id); 
-};
+const sendEmoji = (id: number) => { syncStore.sendSync('send_emoji', { emojiId: id }); triggerBubble(id); };
 
-watch(receivedEmoji, (newVal) => { 
-  if (newVal) {
-    emojiQueue.value.push(newVal.id);
-    playBubbleSound(true); 
-  } 
-});
+watch(receivedEmoji, (newVal) => { if (newVal) { emojiQueue.value.push(newVal.id); playBubbleSound(true); } });
 
 const triggerBubble = (emojiId: number) => {
   const id = Date.now() + Math.random();
