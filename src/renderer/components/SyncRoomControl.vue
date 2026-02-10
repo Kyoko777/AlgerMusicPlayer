@@ -34,7 +34,7 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 极其通透的淡紫色渐变 + 底部居中 Pingu 图 -->
+    <!-- 面板背景层 - 极其清透的淡紫色渐变 + 底部居中 Pingu 图 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
       <!-- 1. 极其清爽的淡紫色背景 (低灰度) -->
       <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fdfaff] to-[#f5f0ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
@@ -43,7 +43,7 @@
       <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[10%]"
+          class="w-[85%] h-auto object-contain opacity-50 mix-blend-multiply dark:mix-blend-lighten dark:opacity-25 translate-y-[5%]"
           draggable="false"
         />
       </div>
@@ -162,14 +162,15 @@
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
+          <!-- 同步设置按钮 (心电图极致上移版) -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电同步线 (高度微调至 y=7) -->
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
+              <!-- 心电同步线：起始位置上移至 y=6，波峰上冲至 y=1 -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,6 L11,7 L12.5,1 L14,8 L16,4 L19,6" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
@@ -182,14 +183,14 @@
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
-        <!-- 2. 服务器设置模式 (强对比度) -->
+        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
-        <!-- 3. 房间选择模式 (强对比度 + 居中文案) -->
+        <!-- 3. 房间选择模式 -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
