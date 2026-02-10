@@ -36,8 +36,8 @@
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
       <div class="absolute inset-0 bg-[#fdfcff] dark:bg-[#0f172a]"></div>
       
-      <!-- Pingu 背景图 - 左右与输入框对齐，适当缩小 -->
-      <div class="absolute inset-x-4 bottom-4 top-24 flex items-center justify-center overflow-hidden rounded-xl">
+      <!-- Pingu 背景图 - 左右与输入框对齐，适当缩小并往上提 -->
+      <div class="absolute inset-x-4 bottom-12 top-20 flex items-center justify-center overflow-hidden rounded-xl">
         <img
           src="@/assets/sync/pingu_bg.jpg"
           class="w-full h-full object-contain opacity-30 dark:opacity-10 grayscale-[0.1]"
