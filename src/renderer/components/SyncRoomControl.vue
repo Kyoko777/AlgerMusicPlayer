@@ -36,11 +36,11 @@
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
       <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fafbff] to-[#f8f5ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
       
-      <!-- Pingu 背景图 - 11:30 经典底部居中模式 -->
-      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none overflow-hidden">
+      <!-- Pingu 背景图 - 经典底部嵌入，保证左右对齐且视觉清爽 -->
+      <div class="absolute inset-x-0 bottom-0 h-[40%] flex items-end justify-center pointer-events-none overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[8%]"
+          class="w-full h-full object-cover opacity-15 dark:opacity-10 grayscale-[0.3]"
           draggable="false"
         />
       </div>
@@ -137,31 +137,32 @@
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+      <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 flex flex-col items-center">
         <!-- 1. 表情宫格模式 -->
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
-          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop w-full">
+          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-2xl overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/10 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[80%] h-[80%] object-contain" /></div>
         </div>
 
         <!-- 2. 服务器设置模式 -->
-        <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
-          <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <!-- 输入框左右对齐面板，文字居中 -->
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-xs text-center font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+        <div v-else-if="isSetting" class="flex flex-col space-y-4 pt-2 w-full px-1">
+          <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest pl-1">{{ t('sync.endpoint') }}</div>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-xs text-center font-bold outline-none transition-all bg-white/70 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
         <!-- 3. 房间选择模式 -->
-        <div v-else class="flex flex-col space-y-3 pt-2">
-          <div v-if="!isSyncing" class="space-y-3 text-center">
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.5em] bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
-            <div class="grid grid-cols-2 gap-2 pt-1">
-              <button @click="handleJoin('private')" class="py-3 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
-              <button @click="handleJoin('public')" class="py-3 bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
+        <div v-else class="flex flex-col space-y-4 pt-2 w-full px-1">
+          <div v-if="!isSyncing" class="space-y-4 text-center w-full flex flex-col items-center">
+            <div class="w-full text-left pl-1">
+              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
+            </div>
+            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.5em] bg-white/70 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
+            <div class="grid grid-cols-2 gap-2 w-full">
+              <button @click="handleJoin('private')" class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
+              <button @click="handleJoin('public')" class="py-4 bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white border-purple-200 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl">
+          <div v-else class="flex flex-col items-center justify-center space-y-2 py-6 rounded-2xl border-2 bg-white/80 border-purple-200 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full shadow-inner">
             <div class="text-[8px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.3em]">{{ t('sync.quantumRoom') }}</div>
             <div class="text-3xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white">{{ roomId }}</div>
             <button @click="leaveRoom" class="text-[10px] text-red-500 font-black uppercase mt-2 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
@@ -208,8 +209,8 @@ const panelStyle = computed(() => {
   return {
     left: `${position.value.x}px`,
     bottom: `${position.value.y}px`,
-    width: isMinimized.value ? '96px' : '240px',
-    height: isMinimized.value ? '96px' : '320px',
+    width: isMinimized.value ? '96px' : '260px',
+    height: isMinimized.value ? '96px' : '340px',
     display: 'flex',
     visibility: 'visible',
     opacity: '1'
