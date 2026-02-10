@@ -3,7 +3,7 @@
     ref="panelRef"
     id="sync-room-anchor"
     class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out bg-transparent"
-    :style="panelStyle"
+    :style="[panelStyle, { transform: 'none !important' }]"
     :class="{
       'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 overflow-hidden':
         !isMinimized,
@@ -52,6 +52,7 @@
         <img
           src="@/assets/sync/pingu_bg.jpg"
           class="w-full h-full object-cover grayscale-[0.1] scale-105"
+          style="transform: none !important;"
           draggable="false"
         />
       </div>
