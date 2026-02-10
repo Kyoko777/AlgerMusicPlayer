@@ -4,10 +4,12 @@
     class="sync-room-control fixed z-[10001] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20': !isMinimized,
-      'bg-transparent border-none': isMinimized,
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 overflow-hidden':
+        !isMinimized,
+      'overflow-visible bg-transparent': isMinimized,
       'dragging-active': isDragging
     }"
+    @mousedown="handleMouseDown"
   >
     <!-- 渐变与滤镜定义 -->
     <svg width="0" height="0" class="absolute">
@@ -33,15 +35,37 @@
     </svg>
 
     <!-- 面板背景层 -->
-    <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl">
-      <img src="@/assets/sync/bg.jpg" class="w-full h-full object-cover grayscale-[0.2]" :class="theme === 'dark' ? 'opacity-60' : 'opacity-30'" />
-      <div class="absolute inset-0 backdrop-blur-md" :class="theme === 'dark' ? 'bg-black/80' : 'bg-white/80'"></div>
+    <div v-if="!isMinimized" class="absolute inset-0 z-0">
+      <img
+        src="@/assets/sync/bg.jpg"
+        class="w-full h-full object-cover grayscale-[0.2]"
+        :class="theme === 'dark' ? 'opacity-60' : 'opacity-30'"
+        draggable="false"
+      />
+      <div
+        class="absolute inset-0 backdrop-blur-md"
+        :class="
+          theme === 'dark'
+            ? 'bg-gradient-to-br from-black/95 via-black/80 to-black/95'
+            : 'bg-gradient-to-br from-white/95 via-white/85 to-white/95'
+        "
+      ></div>
     </div>
 
-    <!-- 表情包浮动气泡层 (全局) -->
-    <div class="absolute inset-0 pointer-events-none overflow-visible z-[100]">
-      <div v-for="bubble in activeBubbles" :key="bubble.id" class="absolute bubble-animation" :style="{ left: bubble.x + 'px', bottom: bubble.y + 'px', '--drift': bubble.drift + 'px' }">
-        <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-lg bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
+    <!-- 表情包浮动气泡层 (全局可见) -->
+    <div class="absolute inset-0 pointer-events-none overflow-visible z-50">
+      <div
+        v-for="bubble in activeBubbles"
+        :key="bubble.id"
+        class="absolute bubble-animation"
+        :style="{
+          left: bubble.x + 'px',
+          bottom: bubble.y + 'px',
+          '--drift': bubble.drift + 'px'
+        }"
+      >
+        <!-- 蓝色气泡外圈 -->
+        <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-[0_0_20px_rgba(59,130,246,0.4)] bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
           <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-contain rounded-full" />
         </div>
       </div>
@@ -50,40 +74,64 @@
     <!-- Pingu 听歌形态 (收起模式) -->
     <div
       v-if="isMinimized"
-      @mousedown="handleMouseDown"
       @click="handleBallClick"
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 环形表情选择器 -->
-      <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
+      <!-- 表情包快捷选择面板 (环形轨道) -->
+      <div
+        v-if="showEmojiPicker"
+        class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right"
+        @mousedown.stop
+      >
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center overflow-visible">
-            <div class="absolute inset-0 pointer-events-none">
-              <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
-            </div>
             <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
-              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
+              <!-- 迷你蓝色猫爪图标 -->
+              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+                <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
+              </svg>
+            </div>
+            <!-- 蓝色爱心粒子 -->
+            <div class="absolute inset-0 pointer-events-none">
+              <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
             </div>
           </div>
         </div>
         <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
-          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
+          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden">
+            <img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" />
+          </div>
         </div>
       </div>
 
-      <!-- Pingu 身体 + 耳机 -->
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
-        <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
+      <!-- Pingu 身体形态 -->
+      <div
+        class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2"
+        :class="{ 'animate-pingu-sway': isPlay }"
+      >
+        <img
+          src="@/assets/sync/pingu_head_v2.png"
+          class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+          draggable="false"
+        />
+        <!-- 炫彩震动耳机 -->
+        <svg
+          viewBox="0 0 100 100"
+          class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500"
+          :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']"
+        >
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
           <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
-      <!-- 浮动音符粒子 -->
+
+      <!-- 动态浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -92,57 +140,69 @@
     </div>
 
     <!-- 完整面板模式 -->
-    <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-        <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
-          <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-black tracking-tighter opacity-80 uppercase" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+    <div
+      v-else
+      class="relative z-10 h-full flex flex-col justify-between p-4 animate-fade-in"
+      :class="theme === 'dark' ? 'text-white' : 'text-gray-900'"
+    >
+      <div class="flex items-center justify-between cursor-move drag-handle border-b border-white/10 pb-2 mb-2">
+        <div class="flex items-center space-x-2">
+          <div :class="['w-2 h-2 rounded-full shadow-lg transition-all duration-500', isSyncing ? 'bg-green-400 shadow-[0_0_10px_#4ade80]' : theme === 'dark' ? 'bg-gray-500' : 'bg-gray-400']"></div>
+          <span class="text-[10px] font-black tracking-[0.2em] uppercase opacity-90">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
-        
-        <div class="flex items-center space-x-2" @mousedown.stop>
-          <!-- 表情按钮 (笑脸图标) -->
-          <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
-            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
+        <div class="flex items-center space-x-3">
+          <button @click.stop="toggleEmojiPicker" class="transition-all hover:scale-125 active:rotate-12">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 同步设置按钮 (改为音符图标) -->
-          <button @click="toggleSettings" class="p-1 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
-            <svg viewBox="0 0 24 24" class="w-5 h-5">
-              <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h1.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L22 7" />
+          <button
+            @click.stop="toggleSettings"
+            class="transition-all hover:scale-125 active:rotate-12"
+          >
+            <!-- 加粗竖条的双音符图标 -->
+            <svg viewBox="0 0 24 24" class="w-6 h-6">
+              <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" />
+              <path fill="url(#note-gradient)" d="M8 18V5h2.5v13H8z" />
+              <circle fill="url(#note-gradient)" cx="19" cy="18" r="4" />
+              <path fill="url(#note-gradient)" d="M21 18V7h2.5v11H21z" />
+              <path
+                fill="none"
+                stroke="url(#ekg-gradient)"
+                stroke-width="1.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L23.5 7"
+              />
             </svg>
           </button>
-          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button @click.stop="toggleMinimize" class="transition-all hover:scale-125">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg>
+          </button>
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
-        <!-- 1. 表情宫格模式 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
-        <!-- 2. 服务器设置模式 -->
-        <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
-          <div class="text-[8px] text-purple-500 font-bold uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-2 py-2 text-[10px] font-bold bg-black/5 border-gray-300 dark:bg-white/10 dark:border-white/30" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'" />
-          <button @click="saveServerUrl" class="w-full py-2 bg-purple-600 text-white rounded-lg text-[10px] font-bold uppercase shadow-lg">{{ t('sync.save') }}</button>
+        <div v-else-if="isSetting" class="flex flex-col justify-center space-y-3 py-2">
+          <div class="text-[9px] text-purple-400 uppercase tracking-widest font-black">{{ t('sync.endpoint') }}</div>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-3 py-2 text-[10px] focus:outline-none bg-white/10 border-white/20 text-white" />
+          <button @click="saveServerUrl" class="w-full py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/30 rounded-lg text-[10px] font-black uppercase tracking-widest">{{ t('sync.save') }}</button>
         </div>
 
-        <!-- 3. 房间选择模式 -->
-        <div v-else class="flex flex-col space-y-3 pt-2">
-          <div v-if="!isSyncing" class="space-y-3 text-center">
-            <div class="relative">
-              <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" :placeholder="t('sync.code')" class="w-full border-2 rounded-xl px-2 py-3 text-sm text-center font-black tracking-[0.4em] bg-white/40 border-gray-200 dark:bg-black/20 dark:border-white/10 focus:border-purple-400 outline-none transition-all" :class="theme === 'dark' ? 'text-white placeholder:text-gray-600' : 'text-gray-900 placeholder:text-gray-400'" />
-            </div>
+        <div v-else class="flex flex-col justify-center space-y-3">
+          <div v-if="!isSyncing" class="space-y-3">
+            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" :placeholder="t('sync.code')" class="w-full border rounded-lg px-3 py-2.5 text-xs focus:outline-none text-center tracking-[0.3em] uppercase font-mono bg-white/10 border-white/20 text-white" />
             <div class="grid grid-cols-2 gap-2">
-              <button @click="handleJoin('private')" class="py-2.5 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-md hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
-              <button @click="handleJoin('public')" class="py-2.5 bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
+              <button @click="handleJoin('private')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest">{{ t('sync.privateRoom') }}</button>
+              <button @click="handleJoin('public')" class="py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white/60 border-purple-200 dark:bg-white/10 dark:border-white/10 backdrop-blur-xl">
-            <div class="text-[8px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.3em]">{{ t('sync.quantumRoom') }}</div>
-            <div class="text-2xl font-mono font-black tracking-[0.2em]" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ roomId }}</div>
-            <button @click="leaveRoom" class="text-[10px] text-red-500 font-black uppercase mt-1 hover:scale-110 transition-transform">{{ t('sync.disconnect') }}</button>
+          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-2xl border bg-white/10 border-white/5 backdrop-blur-xl">
+            <div class="text-[8px] text-purple-400 uppercase tracking-[0.5em] font-black">{{ t('sync.quantumRoom') }}</div>
+            <div class="text-lg font-mono font-black tracking-[0.3em] text-white">{{ roomId }}</div>
+            <button @click="leaveRoom" class="text-[8px] text-red-500 font-black hover:text-red-400 uppercase tracking-widest mt-1">{{ t('sync.disconnect') }}</button>
           </div>
         </div>
       </div>
@@ -201,20 +261,17 @@ const triggerBubble = (emojiId: number) => {
 };
 
 const openDevTools = () => {
-  console.log('[SyncControl] Clicked DevTools');
   // @ts-ignore
   if (window.electron && window.electron.ipcRenderer) {
     // @ts-ignore
     window.electron.ipcRenderer.send('open-dev-tools');
-  } else if (window.api && window.api.openDevTools) {
-    // @ts-ignore
-    window.api.openDevTools();
   } else if (window.ipcRenderer) {
     // @ts-ignore
     window.ipcRenderer.send('open-dev-tools');
   }
 };
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
+
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -225,6 +282,7 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
+
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
@@ -236,15 +294,10 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
+
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
-const toggleEmojiPicker = () => { 
-  showEmojiPicker.value = !showEmojiPicker.value; 
-  if (showEmojiPicker.value) isSetting.value = false;
-};
-const toggleSettings = () => { 
-  isSetting.value = !isSetting.value; 
-  if (isSetting.value) showEmojiPicker.value = false;
-};
+const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; isSetting.value = false; };
+const toggleSettings = () => { isSetting.value = !isSetting.value; showEmojiPicker.value = false; };
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
@@ -270,14 +323,12 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
-.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 .animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
 .animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
 .animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
