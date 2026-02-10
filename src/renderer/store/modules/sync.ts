@@ -14,6 +14,7 @@ export const useSyncStore = defineStore('sync', () => {
   const roomType = ref<'private' | 'public'>('private'); // private = 双人, public = 多人
   const userId = ref(Math.random().toString(36).substring(7));
   const isHost = ref(false);
+  const receivedEmoji = ref<{ id: number; timestamp: number } | null>(null);
 
   // 初始化连接
   const initSync = (targetRoomId: string, type: 'private' | 'public' = 'private') => {
@@ -63,6 +64,13 @@ export const useSyncStore = defineStore('sync', () => {
         if (remoteData?.currentTime) {
           audioService.seek(remoteData.currentTime, true);
         }
+      } else if (operation === 'send_emoji') {
+        // 触发一个全局事件或通过 store 状态传递
+        // 这里我们简单地通过一个 reactive 变量来传递
+        receivedEmoji.value = {
+          id: remoteData.emojiId,
+          timestamp: Date.now()
+        };
       }
     });
 
@@ -106,6 +114,7 @@ export const useSyncStore = defineStore('sync', () => {
     roomType,
     userId,
     isHost,
+    receivedEmoji,
     initSync,
     sendSync,
     leaveRoom
