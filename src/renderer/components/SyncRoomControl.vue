@@ -98,19 +98,16 @@
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
-          <button @click.stop="openDevTools" class="p-1 rounded-md bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 transition-all active:scale-95" title="DevTools">
-            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-blue-400"><path d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M7.11 17L1.4 12L7.11 7L8.53 8.42L4.25 12L8.53 15.58L7.11 17M16.89 17L15.47 15.58L19.75 12L15.47 8.42L16.89 7L22.6 12L16.89 17Z" /></svg>
-          </button>
-          <button @click.stop="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
+          <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10V9H7v2zm0 4h10v-2H7v2z" /></svg>
           </button>
-          <button @click.stop="toggleSettings" class="p-1 rounded-md hover:rotate-45 transition-all active:scale-95" :class="{ 'bg-purple-500/30': isSetting }">
+          <button @click="toggleSettings" class="p-1 rounded-md hover:rotate-45 transition-all active:scale-95" :class="{ 'bg-purple-500/30': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h1.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L22 7" />
             </svg>
           </button>
-          <button @click.stop="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg></button>
         </div>
       </div>
 
@@ -194,21 +191,8 @@ const triggerBubble = (emojiId: number) => {
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
 
-const openDevTools = () => {
-  console.log('[SyncControl] Clicked DevTools');
-  // @ts-ignore
-  if (window.electron && window.electron.ipcRenderer) {
-    // @ts-ignore
-    window.electron.ipcRenderer.send('open-dev-tools');
-  } else if (window.api && window.api.openDevTools) {
-    // @ts-ignore
-    window.api.openDevTools();
-  } else if (window.ipcRenderer) {
-    // @ts-ignore
-    window.ipcRenderer.send('open-dev-tools');
-  }
-};
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
+
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -219,6 +203,7 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
+
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
@@ -230,15 +215,10 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
+
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
-const toggleEmojiPicker = () => { 
-  showEmojiPicker.value = !showEmojiPicker.value; 
-  if (showEmojiPicker.value) isSetting.value = false;
-};
-const toggleSettings = () => { 
-  isSetting.value = !isSetting.value; 
-  if (isSetting.value) showEmojiPicker.value = false;
-};
+const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; isSetting.value = false; };
+const toggleSettings = () => { isSetting.value = !isSetting.value; showEmojiPicker.value = false; };
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
