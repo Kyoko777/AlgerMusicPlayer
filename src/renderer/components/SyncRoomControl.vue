@@ -24,11 +24,6 @@
             <animate attributeName="stop-color" values="#00ffff;#ff00ff;#7000ff;#00ffff" dur="4s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
-        <!-- 果冻发光滤镜 -->
-        <filter id="jelly-glow">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
       </defs>
     </svg>
 
@@ -60,32 +55,33 @@
         <!-- 背景大气泡 -->
         <div class="absolute inset-0 bg-white/10 backdrop-blur-3xl rounded-full border border-white/20 shadow-[0_32px_64px_rgba(0,0,0,0.3)]"></div>
         
-        <!-- 中心大表情 -->
+        <!-- 中心大表情 (发送区) -->
         <div 
           @click="sendEmoji(selectedEmojiId)"
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95"
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20"
         >
-          <img :src="getEmojiUrl(selectedEmojiId)" class="w-20 h-20 object-contain drop-shadow-xl" />
+          <img :src="getEmojiUrl(selectedEmojiId)" class="w-20 h-20 object-contain drop-shadow-2xl" />
           
-          <!-- 蓝色猫爪果冻发送按钮 -->
+          <!-- 蓝色猫爪果冻发送按钮 - 调高透明度 -->
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div class="w-full h-full bg-blue-400/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-blue-300/40 animate-jelly">
-              <svg viewBox="0 0 24 24" class="w-12 h-12 fill-blue-500/60 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
+            <div class="w-full h-full bg-blue-400/40 backdrop-blur-[2px] rounded-full flex items-center justify-center border-4 border-blue-300/60 animate-jelly">
+              <svg viewBox="0 0 24 24" class="w-16 h-16 fill-blue-100/90 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]">
                 <path d="M12,2C15.31,2 18,4.69 18,8C18,11.31 15.31,14 12,14C8.69,14 6,11.31 6,8C6,4.69 8.69,2 12,2M12,16C15.31,16 18,18.69 18,22H6C6,18.69 8.69,16 12,16M12,10.5A1.5,1.5 0 0,1 10.5,9A1.5,1.5 0 0,1 12,7.5A1.5,1.5 0 0,1 13.5,9A1.5,1.5 0 0,1 12,10.5M12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5Z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <!-- 环绕的小表情 -->
+        <!-- 环绕的小表情 - 固定 12 个位置防止跳闪 -->
         <div 
-          v-for="(id, index) in orbitEmojis" 
+          v-for="id in 12" 
           :key="id"
-          @mouseenter="selectedEmojiId = id"
-          class="absolute left-1/2 top-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out cursor-pointer hover:scale-125 z-10"
-          :style="getOrbitStyle(index)"
+          @mouseenter="handleEmojiHover(id)"
+          class="absolute left-1/2 top-1/2 w-12 h-12 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10"
+          :style="getOrbitStyle(id - 1, 100)"
+          :class="{ 'opacity-40 grayscale-[0.5] scale-90': id !== selectedEmojiId }"
         >
-          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md overflow-hidden flex items-center justify-center">
+          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden">
             <img :src="getEmojiUrl(id)" class="w-10 h-10 object-contain" />
           </div>
         </div>
@@ -112,24 +108,22 @@
         </div>
       </div>
 
-      <!-- 内容区 (面板模式也使用大气泡布局) -->
+      <!-- 内容区 (面板模式也使用大气泡布局，固定 12 个防止跳闪) -->
       <div class="flex-1 relative flex items-center justify-center overflow-visible">
         <div v-if="showEmojiPicker" class="relative w-full h-full flex items-center justify-center animate-picker-fade-in">
           <div class="absolute w-40 h-40 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm"></div>
           
-          <!-- 中心表情 -->
-          <div @click="sendEmoji(selectedEmojiId)" class="relative z-10 w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 active:scale-90 shadow-lg">
+          <div @click="sendEmoji(selectedEmojiId)" class="relative z-20 w-20 h-20 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 active:scale-90 shadow-lg">
             <img :src="getEmojiUrl(selectedEmojiId)" class="w-16 h-16 object-contain" />
             <div class="absolute inset-0 opacity-0 group-hover/pan:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div class="w-full h-full bg-blue-500/10 backdrop-blur-[2px] rounded-full border-2 border-blue-400/30 animate-jelly">
-                <svg viewBox="0 0 24 24" class="w-10 h-10 fill-blue-400/50 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M12,2C15.31,2 18,4.69 18,8C18,11.31 15.31,14 12,14C8.69,14 6,11.31 6,8C6,4.69 8.69,2 12,2M12,16C15.31,16 18,18.69 18,22H6C6,18.69 8.69,16 12,16M12,10.5A1.5,1.5 0 0,1 10.5,9A1.5,1.5 0 0,1 12,7.5A1.5,1.5 0 0,1 13.5,9A1.5,1.5 0 0,1 12,10.5M12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5Z" /></svg>
+              <div class="w-full h-full bg-blue-500/20 backdrop-blur-[2px] rounded-full border-2 border-blue-400/30 animate-jelly">
+                <svg viewBox="0 0 24 24" class="w-12 h-12 fill-blue-100/80 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M12,2C15.31,2 18,4.69 18,8C18,11.31 15.31,14 12,14C8.69,14 6,11.31 6,8C6,4.69 8.69,2 12,2M12,16C15.31,16 18,18.69 18,22H6C6,18.69 8.69,16 12,16M12,10.5A1.5,1.5 0 0,1 10.5,9A1.5,1.5 0 0,1 12,7.5A1.5,1.5 0 0,1 13.5,9A1.5,1.5 0 0,1 12,10.5M12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5Z" /></svg>
               </div>
             </div>
           </div>
 
-          <!-- 环绕 -->
-          <div v-for="(id, index) in orbitEmojis" :key="id" @mouseenter="selectedEmojiId = id" class="absolute w-8 h-8 cursor-pointer transition-all duration-500 hover:scale-125" :style="getOrbitStyle(index, 75)">
-            <div class="w-full h-full rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm">
+          <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute w-8 h-8 cursor-pointer transition-all duration-300 hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 75)" :class="{ 'opacity-30 scale-75': id !== selectedEmojiId }">
+            <div class="w-full h-full rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm overflow-hidden">
               <img :src="getEmojiUrl(id)" class="w-6 h-6 object-contain" />
             </div>
           </div>
@@ -178,15 +172,16 @@ const showEmojiPicker = ref(false);
 const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
 
-const orbitEmojis = computed(() => {
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter(id => id !== selectedEmojiId.value);
-});
-
+// 使用固定 12 个位置的逻辑，防止 hover 时由于数组长度变化导致的计算跳闪
 const getOrbitStyle = (index: number, radius: number = 95) => {
-  const angle = (index * 360) / orbitEmojis.value.length;
+  const angle = (index * 360) / 12; // 固定除以 12
   return {
     transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)`
   };
+};
+
+const handleEmojiHover = (id: number) => {
+  selectedEmojiId.value = id;
 };
 
 const position = ref({ x: 16, y: 96 });
@@ -199,7 +194,6 @@ const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.p
 const sendEmoji = (id: number) => {
   syncStore.sendSync('send_emoji', { emojiId: id });
   triggerBubble(id);
-  // 发送后不自动关闭，方便连续发送，或者小蓝想点中心按钮
 };
 
 const triggerBubble = (emojiId: number) => {
