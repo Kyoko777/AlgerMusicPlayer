@@ -103,15 +103,17 @@
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 同步设置按钮 (心电图最终黄金比例版) -->
+          <!-- 同步设置按钮 (最终加粗强化版音符) -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
-              <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
-              <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
-              <rect x="7.5" y="5" width="2.5" height="13" fill="url(#note-gradient)" />
-              <rect x="19.5" y="5" width="2.5" height="13" fill="url(#note-gradient)" />
-              <!-- 心电同步线：起始位置平衡，在竖杆中上段 -->
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,6.5 L11,7.5 L12.5,2.5 L14,9.5 L16,5.5 L19,7.5" />
+              <!-- 加粗音符头 -->
+              <circle fill="url(#note-gradient)" cx="6" cy="18" r="4" />
+              <circle fill="url(#note-gradient)" cx="18" cy="18" r="4" />
+              <!-- 加粗音符竖杆 (3.2px) -->
+              <rect x="7" y="5" width="3.2" height="13" fill="url(#note-gradient)" />
+              <rect x="19" y="5" width="3.2" height="13" fill="url(#note-gradient)" />
+              <!-- 加粗心电波 (2.0px) -->
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" d="M8,6.5 L11,7.5 L12.5,2.5 L14,9.5 L16,5.5 L19,7.5" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
