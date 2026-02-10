@@ -19,7 +19,7 @@ export const useSyncStore = defineStore('sync', () => {
   // 初始化连接
   const initSync = (targetRoomId: string, type: 'private' | 'public' = 'private') => {
     // 自动检测环境：如果是本地开发则用本地IP，否则可以手动指定
-    const serverUrl = window.localStorage.getItem('SYNC_SERVER_URL') || 'http://192.168.124.3:3000';
+    const serverUrl = window.localStorage.getItem('SYNC_SERVER_URL') || 'http://101.200.139.109:3000';
 
     socket.value = io(serverUrl, {
       query: { roomId: targetRoomId, userId: userId.value }
