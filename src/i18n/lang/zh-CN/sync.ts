@@ -12,7 +12,7 @@ export default {
   sync: '同步',
   endpoint: '端点',
   save: '保存',
-  code: '代码',
+  code: '输入专属暗号，进入八度空间',
   quantumRoom: '量子空间',
   disconnect: '断开连接'
 };
