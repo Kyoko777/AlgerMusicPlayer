@@ -267,9 +267,12 @@ export function initializeWindowManager() {
   });
 
   ipcMain.on('open-dev-tools', (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
+    console.log('[Main] Received open-dev-tools request');
+    const win = BrowserWindow.fromWebContents(event.sender) || mainWindowInstance;
     if (win) {
       win.webContents.openDevTools({ mode: 'detach' });
+    } else {
+      console.error('[Main] Could not find window to open devtools');
     }
   });
 

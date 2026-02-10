@@ -200,7 +200,16 @@ const triggerBubble = (emojiId: number) => {
   activeBubbles.value.push(bubble);
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
-const openDevTools = () => { if (window.ipcRenderer) window.ipcRenderer.send('open-dev-tools'); };
+const openDevTools = () => {
+  // @ts-ignore
+  if (window.api && window.api.openDevTools) {
+    // @ts-ignore
+    window.api.openDevTools();
+  } else if (window.ipcRenderer) {
+    // @ts-ignore
+    window.ipcRenderer.send('open-dev-tools');
+  }
+};
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
 const panelStyle = computed(() => {
   const style: any = {

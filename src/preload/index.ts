@@ -65,7 +65,10 @@ const api = {
   lxMusicHttpRequest: (request: { url: string; options: any; requestId: string }) =>
     ipcRenderer.invoke('lx-music-http-request', request),
 
-  lxMusicHttpCancel: (requestId: string) => ipcRenderer.invoke('lx-music-http-cancel', requestId)
+  lxMusicHttpCancel: (requestId: string) => ipcRenderer.invoke('lx-music-http-cancel', requestId),
+
+  // 开发者工具
+  openDevTools: () => ipcRenderer.send('open-dev-tools')
 };
 
 // 创建带类型的ipcRenderer对象，暴露给渲染进程
