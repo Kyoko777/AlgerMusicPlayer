@@ -72,13 +72,13 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 表情包选择器 (收起模式) -->
+      <!-- 表情包选择器 (收起模式) - 优化间距，改为 3x4 布局 -->
       <div
         v-if="showEmojiPicker"
-        class="absolute -top-40 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-3xl p-4 rounded-[2.5rem] border border-white/30 shadow-2xl grid grid-cols-6 gap-3 animate-picker-pop"
+        class="absolute -top-64 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-3xl p-5 rounded-[2.5rem] border border-white/30 shadow-2xl grid grid-cols-3 gap-4 animate-picker-pop"
         @mousedown.stop
       >
-        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-11 h-11 rounded-full overflow-hidden cursor-pointer hover:scale-125 transition-all border-2 border-white/20 bg-white/10">
+        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-125 transition-all border-2 border-white/20 bg-white/10 shadow-sm">
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
         </div>
       </div>
@@ -99,7 +99,7 @@
       class="relative z-10 h-full flex flex-col justify-between p-4 animate-fade-in"
       :class="theme === 'dark' ? 'text-white' : 'text-gray-900'"
     >
-      <!-- 头部工具栏 - 重新布局确保可见性 -->
+      <!-- 头部工具栏 -->
       <div class="flex items-center justify-between cursor-move drag-handle border-b border-white/10 pb-2 mb-2">
         <div class="flex items-center space-x-1">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
@@ -107,21 +107,16 @@
         </div>
         
         <div class="flex items-center space-x-2">
-          <!-- 开发者按钮 - 加亮加边框 -->
           <button @click.stop="openDevTools" class="p-1 rounded-md bg-black/5 hover:bg-black/10 border border-black/5 transition-all" title="DevTools">
             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current text-blue-500">
               <path d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M7.11 17L1.4 12L7.11 7L8.53 8.42L4.25 12L8.53 15.58L7.11 17M16.89 17L15.47 15.58L19.75 12L15.47 8.42L16.89 7L22.6 12L16.89 17Z" />
             </svg>
           </button>
-          
-          <!-- 表情按钮 - 显眼黄色 -->
           <button @click.stop="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 transition-all">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500">
               <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10V9H7v2zm0 4h10v-2H7v2z" />
             </svg>
           </button>
-          
-          <!-- 设置按钮 -->
           <button @click.stop="toggleSettings" class="hover:rotate-45 transition-all">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" />
@@ -130,8 +125,6 @@
               <path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
             </svg>
           </button>
-          
-          <!-- 收起按钮 -->
           <button @click.stop="toggleMinimize" class="hover:translate-y-[-2px] transition-all">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg>
           </button>
@@ -139,8 +132,8 @@
       </div>
 
       <!-- 内容区 -->
-      <div v-if="showEmojiPicker" class="flex-1 grid grid-cols-4 gap-2 content-center justify-items-center py-1 animate-picker-pop">
-        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-9 h-9 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md">
+      <div v-if="showEmojiPicker" class="flex-1 grid grid-cols-3 gap-3 content-center justify-items-center py-1 animate-picker-pop">
+        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md">
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
         </div>
       </div>
@@ -226,8 +219,6 @@ const openDevTools = () => {
   if (window.ipcRenderer) {
     // @ts-ignore
     window.ipcRenderer.send('open-dev-tools');
-  } else {
-    console.error('ipcRenderer not found');
   }
 };
 
@@ -242,7 +233,7 @@ const panelStyle = computed(() => {
   if (isMinimized.value) {
     style.width = '100px'; style.height = '100px'; style.background = 'transparent'; style.border = 'none'; style.overflow = 'visible';
   } else {
-    style.width = '200px'; style.height = '200px'; style.background = theme.value === 'dark' ? '#000' : '#fff';
+    style.width = '200px'; style.height = '240px'; style.background = theme.value === 'dark' ? '#000' : '#fff';
   }
   return style;
 });
