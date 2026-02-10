@@ -136,30 +136,80 @@
         </div>
 
         <!-- 2. 服务器设置面板 -->
-        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-2 px-1">
+        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-6 pt-4 px-2">
           <div class="w-full text-center">
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.endpoint') }}</div>
+            <div
+              class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center"
+            >
+              {{ t('sync.endpoint') }}
+            </div>
           </div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+          <input
+            v-model="serverUrlInput"
+            type="text"
+            @mousedown.stop
+            placeholder="https://..."
+            class="w-full border-2 rounded-xl px-4 py-4 text-[13px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white"
+          />
+          <button
+            @click="saveServerUrl"
+            class="w-full py-4 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all"
+          >
+            {{ t('sync.save') }}
+          </button>
         </div>
 
         <!-- 3. 同步主面板 -->
-        <div v-else class="w-full flex flex-col items-center space-y-5 pt-2 px-1">
-          <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-5">
+        <div v-else class="w-full flex flex-col items-center space-y-6 pt-4 px-2">
+          <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-6">
             <div class="w-full text-center">
-              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center">{{ t('sync.code') }}</div>
+              <div
+                class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center"
+              >
+                {{ t('sync.code') }}
+              </div>
             </div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
-            <div class="grid grid-cols-2 gap-3 w-full">
-              <button @click="handleJoin('private')" class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all">{{ t('sync.privateRoom') }}</button>
-              <button @click="handleJoin('public')" class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all">{{ t('sync.publicRoom') }}</button>
+            <input
+              v-model="roomInput"
+              type="text"
+              @mousedown.stop
+              maxlength="8"
+              placeholder=""
+              class="w-full border-2 rounded-xl px-2 py-5 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none"
+            />
+            <div class="grid grid-cols-2 gap-4 w-full">
+              <button
+                @click="handleJoin('private')"
+                class="py-5 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all"
+              >
+                {{ t('sync.privateRoom') }}
+              </button>
+              <button
+                @click="handleJoin('public')"
+                class="py-5 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all"
+              >
+                {{ t('sync.publicRoom') }}
+              </button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-3 py-8 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full">
-            <div class="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center">{{ t('sync.quantumRoom') }}</div>
-            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white w-full text-center">{{ roomId }}</div>
-            <button @click="leaveRoom" class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
+          <div
+            v-else
+            class="flex flex-col items-center justify-center space-y-4 py-10 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full"
+          >
+            <div
+              class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center"
+            >
+              {{ t('sync.quantumRoom') }}
+            </div>
+            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white w-full text-center">
+              {{ roomId }}
+            </div>
+            <button
+              @click="leaveRoom"
+              class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4"
+            >
+              {{ t('sync.disconnect') }}
+            </button>
           </div>
         </div>
       </div>
