@@ -139,7 +139,7 @@
         <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-6 pt-4 px-4">
           <div class="w-full text-center">
             <div
-              class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center"
+              class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center"
             >
               {{ t('sync.endpoint') }}
             </div>
@@ -150,13 +150,13 @@
               type="text"
               @mousedown.stop
               placeholder="https://..."
-              class="w-[210px] border-2 rounded-xl px-4 py-4 text-[13px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white shadow-sm"
+              class="w-[190px] border-2 rounded-xl px-4 py-3 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white shadow-sm mx-auto"
             />
           </div>
           <div class="w-full flex justify-center">
             <button
               @click="saveServerUrl"
-              class="w-[210px] py-4 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all"
+              class="w-[190px] py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all mx-auto"
             >
               {{ t('sync.save') }}
             </button>
@@ -168,7 +168,7 @@
           <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-6">
             <div class="w-full text-center">
               <div
-                class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center"
+                class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center"
               >
                 {{ t('sync.code') }}
               </div>
@@ -180,20 +180,20 @@
                 @mousedown.stop
                 maxlength="8"
                 placeholder=""
-                class="w-[210px] border-2 rounded-xl px-2 py-5 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none shadow-sm"
+                class="w-[190px] border-2 rounded-xl px-2 py-4 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none shadow-sm mx-auto"
               />
             </div>
             <div class="w-full flex justify-center">
-              <div class="grid grid-cols-2 gap-4 w-[210px]">
+              <div class="grid grid-cols-2 gap-4 w-[190px] mx-auto">
                 <button
                   @click="handleJoin('private')"
-                  class="py-5 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all"
+                  class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all"
                 >
                   {{ t('sync.privateRoom') }}
                 </button>
                 <button
                   @click="handleJoin('public')"
-                  class="py-5 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all"
+                  class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all"
                 >
                   {{ t('sync.publicRoom') }}
                 </button>
@@ -390,6 +390,11 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
+
+.animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
+.animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
+.animate-note-float-top { animation: note-float-top 2.5s infinite ease-out; }
+
 .custom-scrollbar::-webkit-scrollbar { width: 0px; }
 .custom-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
