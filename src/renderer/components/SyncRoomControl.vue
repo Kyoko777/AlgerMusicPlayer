@@ -37,10 +37,10 @@
       <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
       
       <!-- Pingu 背景图 - 底部居中，优化位置和大小 -->
-      <div class="absolute inset-x-0 bottom-0 h-[65%] flex items-end justify-center overflow-hidden">
+      <div class="absolute inset-x-0 bottom-0 h-[50%] flex items-end justify-center overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-full h-full object-cover opacity-30 mix-blend-multiply dark:mix-blend-lighten dark:opacity-10"
+          class="w-full h-full object-cover opacity-20 mix-blend-multiply dark:mix-blend-lighten dark:opacity-10"
           draggable="false"
         />
       </div>
@@ -136,9 +136,11 @@
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 px-1 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/10 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-10 h-10 object-contain" /></div>
         </div>
-        <div v-else-if="isSetting" class="flex flex-col space-y-4 pt-4 px-2">
+        <div v-else-if="isSetting" class="flex flex-col space-y-4 pt-4 px-1">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest pl-1">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-[11px] font-bold outline-none transition-all bg-white/60 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          <div class="relative w-full">
+            <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-[11px] font-bold outline-none transition-all bg-white/70 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          </div>
           <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
         <div v-else class="flex flex-col space-y-3 pt-2">
@@ -323,9 +325,6 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
 @keyframes queue-hover { 0%, 100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-5px); } }
 .animate-queue-hover { animation: queue-hover 2s infinite ease-in-out; }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
