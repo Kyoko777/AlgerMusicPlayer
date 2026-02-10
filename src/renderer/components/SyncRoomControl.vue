@@ -96,50 +96,51 @@
       <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+          <span class="text-[10px] font-black tracking-tighter opacity-80 uppercase" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
-          <!-- 表情按钮 (真·笑脸图标) -->
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
-            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500">
-              <path d="M12,2C6.47,2 2,6.47 2,12s4.47,10 10,10s10-4.47 10-10S17.53,2 12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" />
-            </svg>
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 还原音符按钮 -->
           <button @click="toggleSettings" class="p-1 rounded-md hover:rotate-45 transition-all active:scale-95" :class="{ 'bg-purple-500/30': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h1.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L22 7" />
             </svg>
           </button>
-          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+        <!-- 1. 表情宫格模式 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
+        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
-          <div class="text-[8px] text-purple-500 font-bold uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-2 py-2 text-[10px] bg-white/10 border-white/30 text-white" />
-          <button @click="saveServerUrl" class="w-full py-2 bg-purple-500 text-white rounded-lg text-[10px] font-bold uppercase">{{ t('sync.save') }}</button>
+          <div class="text-[9px] text-purple-500 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-2 py-2 text-[10px] font-bold bg-black/5 border-gray-300 dark:bg-white/10 dark:border-white/30" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'" />
+          <button @click="saveServerUrl" class="w-full py-2 bg-purple-600 text-white rounded-lg text-[10px] font-black uppercase shadow-lg">{{ t('sync.save') }}</button>
         </div>
 
+        <!-- 3. 房间选择模式 (加深文字颜色) -->
         <div v-else class="flex flex-col space-y-3 pt-2">
-          <div v-if="!isSyncing" class="space-y-3">
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" :placeholder="t('sync.code')" class="w-full border rounded-lg px-2 py-2 text-xs text-center font-mono bg-white/10 border-white/30 text-white" />
+          <div v-if="!isSyncing" class="space-y-3 text-center">
+            <div class="relative">
+              <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" :placeholder="t('sync.code')" class="w-full border-2 rounded-xl px-2 py-3 text-sm text-center font-black tracking-[0.4em] bg-white/40 border-gray-200 dark:bg-black/20 dark:border-white/10 focus:border-purple-400 outline-none transition-all" :class="theme === 'dark' ? 'text-white placeholder:text-gray-600' : 'text-gray-900 placeholder:text-gray-400'" />
+            </div>
             <div class="grid grid-cols-2 gap-2">
-              <button @click="handleJoin('private')" class="py-2 bg-black/10 hover:bg-black/20 border border-white/10 rounded-lg text-[10px] font-bold uppercase">{{ t('sync.privateRoom') }}</button>
-              <button @click="handleJoin('public')" class="py-2 bg-black/10 hover:bg-black/20 border border-white/10 rounded-lg text-[10px] font-bold uppercase">{{ t('sync.publicRoom') }}</button>
+              <button @click="handleJoin('private')" class="py-2.5 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-md hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
+              <button @click="handleJoin('public')" class="py-2.5 bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border bg-white/20 border-white/10 backdrop-blur-xl">
-            <div class="text-[8px] text-purple-500 font-bold uppercase">{{ t('sync.quantumRoom') }}</div>
-            <div class="text-lg font-mono font-bold tracking-widest">{{ roomId }}</div>
-            <button @click="leaveRoom" class="text-[10px] text-red-500 font-bold uppercase mt-1">{{ t('sync.disconnect') }}</button>
+          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white/60 border-purple-200 dark:bg-white/10 dark:border-white/10 backdrop-blur-xl">
+            <div class="text-[8px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.3em]">{{ t('sync.quantumRoom') }}</div>
+            <div class="text-2xl font-mono font-black tracking-[0.2em]" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">{{ roomId }}</div>
+            <button @click="leaveRoom" class="text-[10px] text-red-500 font-black uppercase mt-1 hover:scale-110 transition-transform">{{ t('sync.disconnect') }}</button>
           </div>
         </div>
       </div>
@@ -197,21 +198,8 @@ const triggerBubble = (emojiId: number) => {
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
 
-const openDevTools = () => {
-  console.log('[SyncControl] Clicked DevTools');
-  // @ts-ignore
-  if (window.electron && window.electron.ipcRenderer) {
-    // @ts-ignore
-    window.electron.ipcRenderer.send('open-dev-tools');
-  } else if (window.api && window.api.openDevTools) {
-    // @ts-ignore
-    window.api.openDevTools();
-  } else if (window.ipcRenderer) {
-    // @ts-ignore
-    window.ipcRenderer.send('open-dev-tools');
-  }
-};
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
+
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -222,6 +210,7 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
+
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
@@ -233,6 +222,7 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
+
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
 const toggleEmojiPicker = () => { 
   showEmojiPicker.value = !showEmojiPicker.value; 
@@ -267,14 +257,12 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
-.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 .animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
 .animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
 .animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
