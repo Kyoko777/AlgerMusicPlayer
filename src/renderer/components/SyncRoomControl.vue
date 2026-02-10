@@ -106,7 +106,7 @@
 
     <!-- 4. 完整面板模式 (展开) -->
     <div v-else class="relative z-10 h-full flex flex-col animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- 顶部状态栏 - 移除 p-4 改为手动控制间距 -->
+      <!-- 顶部状态栏 -->
       <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 px-4 py-3 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-2 cursor-move flex-1 h-full">
           <div :class="['w-2.5 h-2.5 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-300']"></div>
@@ -139,16 +139,22 @@
         <!-- 2. 服务器设置面板 -->
         <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-4 px-6">
           <div class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3.5 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-4 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+          <div class="w-full flex justify-center">
+            <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-[92%] border-2 rounded-xl px-4 py-3.5 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          </div>
+          <div class="w-full flex justify-center">
+            <button @click="saveServerUrl" class="w-[92%] py-4 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+          </div>
         </div>
 
         <!-- 3. 同步主面板 -->
         <div v-else class="w-full flex flex-col items-center space-y-6 pt-4 px-6">
           <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-5">
             <div class="text-[11px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.code') }}</div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
-            <div class="grid grid-cols-2 gap-3 w-full">
+            <div class="w-full flex justify-center">
+              <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-[92%] border-2 rounded-xl px-2 py-4 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
+            </div>
+            <div class="grid grid-cols-2 gap-3 w-[92%]">
               <button @click="handleJoin('private')" class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all">{{ t('sync.privateRoom') }}</button>
               <button @click="handleJoin('public')" class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all">{{ t('sync.publicRoom') }}</button>
             </div>
@@ -160,6 +166,8 @@
           </div>
         </div>
       </div>
+      <!-- 视觉标记：确保用户知道是最新版本 -->
+      <div class="absolute bottom-1 right-2 text-[8px] opacity-10 font-mono pointer-events-none">EV-ALIGN-V3</div>
     </div>
   </div>
 </template>
