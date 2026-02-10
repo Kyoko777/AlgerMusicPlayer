@@ -104,12 +104,8 @@ const AppMenu = defineAsyncComponent(() => import('./components/AppMenu.vue'));
 const PlayBar = defineAsyncComponent(() => import('@/components/player/PlayBar.vue'));
 const MobilePlayBar = defineAsyncComponent(() => import('@/components/player/MobilePlayBar.vue'));
 const SearchBar = defineAsyncComponent(() => import('./components/SearchBar.vue'));
-const TitleBar = defineAsyncComponent(() => import('./components/TitleBar.vue'));
-const PlayingListDrawer = defineAsyncComponent(
-  () => import('@/components/player/PlayingListDrawer.vue')
-);
-const SyncRoomControl = defineAsyncComponent(() => import('@/components/SyncRoomControl.vue'));
-const PlaylistDrawer = defineAsyncComponent(() => import('@/components/common/PlaylistDrawer.vue'));
+import TitleBar from './components/TitleBar.vue';
+import SyncRoomControl from '@/components/SyncRoomControl.vue';
 
 const playerStore = usePlayerStore();
 const settingsStore = useSettingsStore();

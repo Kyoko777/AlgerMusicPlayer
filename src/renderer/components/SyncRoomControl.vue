@@ -4,7 +4,7 @@
     class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/20': !isMinimized,
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/20 overflow-hidden': !isMinimized,
       'bg-transparent border-none': isMinimized,
       'dragging-active': isDragging
     }"
@@ -34,23 +34,16 @@
 
     <!-- 1. 背景层 (展开模式) -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
-      <!-- 极淡紫色背景 -->
       <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
-      
-      <!-- Pingu 背景图 - 底部居中 -->
-      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center">
+      <div class="absolute inset-0 flex items-end justify-center">
         <img
-          :src="pinguBgUrl"
-          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[8%]"
+          src="@/assets/sync/pingu_bg.jpg"
+          class="w-[90%] h-auto object-contain opacity-50 translate-y-[5%]"
           draggable="false"
         />
       </div>
-      
-      <!-- 磨砂玻璃层 -->
-      <div
-        class="absolute inset-0 backdrop-blur-[2px]"
-        :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"
-      ></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-purple-500/5 to-purple-500/10"></div>
+      <div class="absolute inset-0 backdrop-blur-[2px]" :class="theme === 'dark' ? 'bg-black/20' : 'bg-white/5'"></div>
     </div>
 
     <!-- 2. 表情包浮动气泡层 (全局可见) -->
@@ -113,7 +106,7 @@
 
     <!-- 4. 完整面板模式 (展开) -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <div class="flex items-center justify-between border-b border-white/20 pb-2 mb-2">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
           <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
@@ -122,27 +115,29 @@
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
+          <!-- 完美对称极简音符图标 -->
           <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
-            <svg viewBox="0 0 24 24" class="w-5 h-5"><circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" /><circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" /><rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" /><rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" /><path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" /></svg>
+            <svg viewBox="0 0 24 24" class="w-5 h-5">
+              <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
+              <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
+              <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
+              <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" />
+            </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 relative z-10">
-        <!-- 1. 表情宫格模式 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
-
-        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2 text-[10px] bg-white/10 border-white/20 text-gray-900 dark:text-white" />
+          <button @click="saveServerUrl" class="w-full py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
-
-        <!-- 3. 房间选择模式 -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
@@ -170,9 +165,6 @@ import { useI18n } from 'vue-i18n';
 import { usePlayerStore } from '@/store/modules/player';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useSyncStore } from '@/store/modules/sync';
-
-// 强制显式导入资源，确保编译正常
-import pinguBgUrl from '@/assets/sync/pingu_bg.jpg';
 
 const { t } = useI18n();
 const syncStore = useSyncStore();
@@ -313,6 +305,9 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
+@keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
+@keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
+@keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
 .animate-headphone-vibrate { animation: headphone-vibrate 0.4s infinite ease-in-out; transform-origin: center; }
