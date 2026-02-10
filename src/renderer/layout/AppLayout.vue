@@ -34,7 +34,7 @@
         </div>
       </div>
       <!-- 一起听悬浮控制面板 -->
-      <sync-room-control v-if="!settingsStore.isMobile" />
+      <sync-room-control />
       <!-- 底部音乐播放 -->
       <template v-if="!settingsStore.isMiniMode">
         <play-bar
@@ -63,7 +63,6 @@
     />
     <!-- 播放列表抽屉 -->
     <playing-list-drawer />
-    <sync-room-control v-if="settingsStore.isMobile && !playerStore.musicFull" />
   </div>
 </template>
 

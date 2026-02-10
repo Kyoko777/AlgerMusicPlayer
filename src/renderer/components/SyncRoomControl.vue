@@ -1,11 +1,11 @@
 <template>
   <div
     ref="panelRef"
-    class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out"
+    id="sync-room-anchor"
+    class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out bg-transparent"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/20 overflow-hidden': !isMinimized,
-      'bg-transparent border-none': isMinimized,
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/20': !isMinimized,
       'dragging-active': isDragging
     }"
   >
@@ -37,7 +37,7 @@
       <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
       <div class="absolute inset-0 flex items-end justify-center">
         <img
-          :src="pinguBgUrl"
+          src="@/assets/sync/pingu_bg.jpg"
           class="w-[90%] h-auto object-contain opacity-50 translate-y-[5%]"
           draggable="false"
         />
@@ -61,7 +61,7 @@
       @mousedown="handleMouseDown"
       @click="handleBallClick"
       @contextmenu.prevent="toggleEmojiPicker"
-      class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
+      class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
       <!-- 待命气泡 -->
       <div class="absolute inset-0 pointer-events-none overflow-visible z-30">
@@ -90,7 +90,7 @@
 
       <!-- Pingu 身体 + 耳机 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <img :src="pinguHeadUrl" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
         <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
@@ -166,7 +166,6 @@ import { usePlayerStore } from '@/store/modules/player';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useSyncStore } from '@/store/modules/sync';
 
-import pinguBgUrl from '@/assets/sync/pingu_bg.jpg';
 import pinguHeadUrl from '@/assets/sync/pingu_head_v2.png';
 
 const { t } = useI18n();
@@ -186,12 +185,20 @@ const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
 const emojiQueue = ref<number[]>([]);
 
+const position = ref({ x: 16, y: 96 });
+const isDragging = ref(false);
+const dragOffset = ref({ x: 0, y: 0 });
+let dragStartTime = 0;
+
 const panelStyle = computed(() => {
   return {
     left: `${position.value.x}px`,
     bottom: `${position.value.y}px`,
     width: isMinimized.value ? '96px' : '240px',
-    height: isMinimized.value ? '96px' : '320px'
+    height: isMinimized.value ? '96px' : '320px',
+    display: 'flex',
+    visibility: 'visible',
+    opacity: '1'
   };
 });
 
@@ -240,10 +247,6 @@ const getQueuePosition = (index: number) => {
 };
 
 const handleEmojiHover = (id: number) => { selectedEmojiId.value = id; };
-const position = ref({ x: 16, y: 96 });
-const isDragging = ref(false);
-const dragOffset = ref({ x: 0, y: 0 });
-let dragStartTime = 0;
 const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
 
 const sendEmoji = (id: number) => { 
@@ -286,10 +289,13 @@ const handleBallClick = () => {
   } 
 };
 
-const openDevTools = () => { if (window.electron && window.electron.ipcRenderer) window.electron.ipcRenderer.send('open-dev-tools'); };
 const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; if (showEmojiPicker.value) isSetting.value = false; };
 const toggleSettings = () => { isSetting.value = !isSetting.value; if (isSetting.value) showEmojiPicker.value = false; };
-onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
+onMounted(() => { 
+  serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || '';
+  // 强制检查 anchor 是否存在
+  console.log('SyncRoomControl mounted, anchor:', document.getElementById('sync-room-anchor'));
+});
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
 const handleJoin = (type: 'private' | 'public') => { if (!roomInput.value) roomInput.value = Math.random().toString(36).substring(7).toUpperCase(); syncStore.initSync(roomInput.value, type); };
