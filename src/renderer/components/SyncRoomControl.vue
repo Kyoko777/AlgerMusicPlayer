@@ -135,8 +135,8 @@
         </div>
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2 text-[10px] bg-white/10 border-white/20 text-gray-900 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-xs font-bold outline-none transition-all bg-white/50 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
