@@ -38,7 +38,7 @@
       <div class="absolute inset-0 backdrop-blur-md" :class="theme === 'dark' ? 'bg-black/80' : 'bg-white/80'"></div>
     </div>
 
-    <!-- 表情包浮动气泡层 -->
+    <!-- 表情包浮动气泡层 (全局) -->
     <div class="absolute inset-0 pointer-events-none overflow-visible z-[100]">
       <div v-for="bubble in activeBubbles" :key="bubble.id" class="absolute bubble-animation" :style="{ left: bubble.x + 'px', bottom: bubble.y + 'px', '--drift': bubble.drift + 'px' }">
         <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-lg bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
@@ -55,6 +55,7 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
+      <!-- 环形表情选择器 -->
       <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
@@ -90,46 +91,40 @@
 
     <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- 头部拖拽手柄区域 (限制在标题和空白处) -->
       <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
           <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
         
-        <!-- 按钮容器 (阻止冒泡，确保点击) -->
         <div class="flex items-center space-x-2" @mousedown.stop>
-          <button @click="openDevTools" class="p-1 rounded-md bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 transition-all active:scale-90" title="DevTools">
+          <button @click.stop="openDevTools" class="p-1 rounded-md bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 transition-all active:scale-95" title="DevTools">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-blue-400"><path d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M7.11 17L1.4 12L7.11 7L8.53 8.42L4.25 12L8.53 15.58L7.11 17M16.89 17L15.47 15.58L19.75 12L15.47 8.42L16.89 7L22.6 12L16.89 17Z" /></svg>
           </button>
-          <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-90" :class="{ 'bg-yellow-400/50 shadow-inner': showEmojiPicker }">
+          <button @click.stop="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10V9H7v2zm0 4h10v-2H7v2z" /></svg>
           </button>
-          <button @click="toggleSettings" class="p-1 rounded-md hover:rotate-45 transition-all active:scale-90" :class="{ 'bg-purple-500/30': isSetting }">
+          <button @click.stop="toggleSettings" class="p-1 rounded-md hover:rotate-45 transition-all active:scale-95" :class="{ 'bg-purple-500/30': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h1.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L22 7" />
             </svg>
           </button>
-          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button @click.stop="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2"><path d="M18 15l-6-6-6 6" /></svg></button>
         </div>
       </div>
 
-      <!-- 可滚动内容区 -->
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
-        <!-- 1. 表情宫格模式 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
-        <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[8px] text-purple-500 font-bold uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-2 py-2 text-[10px] bg-white/10 border-white/30 text-white" />
           <button @click="saveServerUrl" class="w-full py-2 bg-purple-500 text-white rounded-lg text-[10px] font-bold uppercase">{{ t('sync.save') }}</button>
         </div>
 
-        <!-- 3. 房间选择模式 -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3">
             <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" :placeholder="t('sync.code')" class="w-full border rounded-lg px-2 py-2 text-xs text-center font-mono bg-white/10 border-white/30 text-white" />
@@ -200,9 +195,12 @@ const triggerBubble = (emojiId: number) => {
 };
 
 const openDevTools = () => {
-  console.log('[SyncControl] Attempting to open DevTools via api.openDevTools');
+  console.log('[SyncControl] Clicked DevTools');
   // @ts-ignore
-  if (window.api && window.api.openDevTools) {
+  if (window.electron && window.electron.ipcRenderer) {
+    // @ts-ignore
+    window.electron.ipcRenderer.send('open-dev-tools');
+  } else if (window.api && window.api.openDevTools) {
     // @ts-ignore
     window.api.openDevTools();
   } else if (window.ipcRenderer) {
@@ -210,9 +208,7 @@ const openDevTools = () => {
     window.ipcRenderer.send('open-dev-tools');
   }
 };
-
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
-
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -223,12 +219,9 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
-
 const handleMouseDown = (e: MouseEvent) => {
-  // 如果点击的是按钮或输入框，不触发拖拽
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
-  
   isDragging.value = true; dragStartTime = Date.now();
   dragOffset.value = { x: e.clientX - position.value.x, y: window.innerHeight - e.clientY - position.value.y };
   const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -237,10 +230,15 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
-
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
-const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; isSetting.value = false; };
-const toggleSettings = () => { isSetting.value = !isSetting.value; showEmojiPicker.value = false; };
+const toggleEmojiPicker = () => { 
+  showEmojiPicker.value = !showEmojiPicker.value; 
+  if (showEmojiPicker.value) isSetting.value = false;
+};
+const toggleSettings = () => { 
+  isSetting.value = !isSetting.value; 
+  if (isSetting.value) showEmojiPicker.value = false;
+};
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
@@ -264,11 +262,9 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-breathe { animation: breathe 3s infinite ease-in-out; }
 @keyframes heart-float { 0% { transform: translateY(0) scale(0) rotate(0deg); opacity: 0; } 20% { opacity: 0.8; } 100% { transform: translateY(-40px) scale(1.2) rotate(20deg); opacity: 0; } }
 .animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
-
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
