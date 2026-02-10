@@ -266,6 +266,13 @@ export function initializeWindowManager() {
     }
   });
 
+  ipcMain.on('open-dev-tools', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+      win.webContents.openDevTools({ mode: 'detach' });
+    }
+  });
+
   // 监听代理设置变化
   store.onDidChange('set.proxyConfig', () => {
     initializeProxy();

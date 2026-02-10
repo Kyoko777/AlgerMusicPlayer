@@ -74,7 +74,6 @@
           '--drift': bubble.drift + 'px'
         }"
       >
-        <!-- 气泡感圆形表情 -->
         <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.3)] bg-white/30 backdrop-blur-md flex items-center justify-center p-1">
           <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-contain rounded-full" />
         </div>
@@ -88,7 +87,7 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 表情包快捷选择面板 (气泡感) - 扩展至12个表情 -->
+      <!-- 表情包快捷选择面板 (气泡感) -->
       <div
         v-if="showEmojiPicker"
         class="absolute -top-40 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-3xl p-4 rounded-[2.5rem] border border-white/30 shadow-[0_32px_64px_rgba(0,0,0,0.4)] grid grid-cols-6 gap-3 animate-picker-pop"
@@ -155,6 +154,12 @@
           }}</span>
         </div>
         <div class="flex items-center space-x-3">
+          <!-- 开发者面板开关 (小蓝的后门) -->
+          <button @click.stop="openDevTools" class="transition-all hover:scale-125 opacity-30 hover:opacity-100">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+              <path d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M7.11 17L1.4 12L7.11 7L8.53 8.42L4.25 12L8.53 15.58L7.11 17M16.89 17L15.47 15.58L19.75 12L15.47 8.42L16.89 7L22.6 12L16.89 17Z" />
+            </svg>
+          </button>
           <button @click.stop="toggleEmojiPicker" class="transition-all hover:scale-125 active:rotate-12">
             <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current text-yellow-400">
               <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10V9H7v2zm0 4h10v-2H7v2z" />
@@ -256,7 +261,6 @@ const triggerBubble = (emojiId: number) => {
   const bubble = {
     id,
     emojiId,
-    // 气泡起始位置在 Pingu 身体中心附近
     x: position.value.x + (isMinimized.value ? 20 : 60),
     y: position.value.y + (isMinimized.value ? 40 : 100),
     drift: (Math.random() - 0.5) * 150
@@ -265,6 +269,14 @@ const triggerBubble = (emojiId: number) => {
   setTimeout(() => {
     activeBubbles.value = activeBubbles.value.filter(b => b.id !== id);
   }, 3500);
+};
+
+const openDevTools = () => {
+  // @ts-ignore
+  if (window.ipcRenderer) {
+    // @ts-ignore
+    window.ipcRenderer.send('open-dev-tools');
+  }
 };
 
 watch(receivedEmoji, (newVal) => {
@@ -375,23 +387,11 @@ const leaveRoom = () => {
   transition: none !important;
 }
 
-/* 气泡漂浮动画 - 更加丝滑 */
 @keyframes bubble-float {
-  0% {
-    transform: translateY(0) scale(0.3) rotate(0);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-    transform: translateY(-30px) scale(1.1) rotate(15deg);
-  }
-  40% {
-    transform: translateY(-80px) translateX(calc(var(--drift) * 0.4)) scale(1) rotate(-10deg);
-  }
-  100% {
-    transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg);
-    opacity: 0;
-  }
+  0% { transform: translateY(0) scale(0.3) rotate(0); opacity: 0; }
+  15% { opacity: 1; transform: translateY(-30px) scale(1.1) rotate(15deg); }
+  40% { transform: translateY(-80px) translateX(calc(var(--drift) * 0.4)) scale(1) rotate(-10deg); }
+  100% { transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg); opacity: 0; }
 }
 
 .bubble-animation {
@@ -399,23 +399,15 @@ const leaveRoom = () => {
   will-change: transform, opacity;
 }
 
-/* 选择面板弹出动画 */
 @keyframes picker-pop {
-  0% {
-    transform: translate(-50%, 30px) scale(0.7);
-    opacity: 0;
-  }
-  100% {
-    transform: translate(-50%, 0) scale(1);
-    opacity: 1;
-  }
+  0% { transform: translate(-50%, 30px) scale(0.7); opacity: 0; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
 }
 
 .animate-picker-pop {
   animation: picker-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* 基础动画 */
 @keyframes note-float-left {
   0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
   20% { opacity: 1; }
