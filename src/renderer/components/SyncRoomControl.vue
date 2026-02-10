@@ -100,19 +100,15 @@
         </div>
         
         <div class="flex items-center space-x-2" @mousedown.stop>
+          <!-- 表情按钮 (笑脸图标) -->
           <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 重新设计：更像耳机的同步图标 -->
-          <button @click="toggleSettings" class="p-1.5 rounded-md hover:scale-110 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
+          <!-- 同步设置按钮 (改为音符图标) -->
+          <button @click="toggleSettings" class="p-1 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
-              <!-- 耳机头梁 -->
-              <path fill="none" stroke="url(#note-gradient)" stroke-width="2.5" stroke-linecap="round" d="M4,15 C4,5 20,5 20,15" />
-              <!-- 耳机耳罩 -->
-              <rect x="2" y="14" width="5" height="7" rx="2" fill="url(#note-gradient)" />
-              <rect x="17" y="14" width="5" height="7" rx="2" fill="url(#note-gradient)" />
-              <!-- 动态心电线 (代表同步) -->
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M9,8 L11,9 L12,6 L13,10 L15,7 L17,9" />
+              <circle fill="url(#note-gradient)" cx="5" cy="18" r="4" /><path fill="url(#note-gradient)" d="M8 18V5h1.5v13H8z" /><circle fill="url(#note-gradient)" cx="19" cy="18" r="4" /><path fill="url(#note-gradient)" d="M22 18V7h1.5v11H22z" />
+              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M9.5 5 L12 5.5 L14 2 L15.5 10 L17 3 L19 6.5 L22 7" />
             </svg>
           </button>
           <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
@@ -127,7 +123,7 @@
 
         <!-- 2. 服务器设置模式 -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
-          <div class="text-[9px] text-purple-500 font-bold uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
+          <div class="text-[8px] text-purple-500 font-bold uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border rounded-lg px-2 py-2 text-[10px] font-bold bg-black/5 border-gray-300 dark:bg-white/10 dark:border-white/30" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'" />
           <button @click="saveServerUrl" class="w-full py-2 bg-purple-600 text-white rounded-lg text-[10px] font-bold uppercase shadow-lg">{{ t('sync.save') }}</button>
         </div>
@@ -204,8 +200,21 @@ const triggerBubble = (emojiId: number) => {
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
 
+const openDevTools = () => {
+  console.log('[SyncControl] Clicked DevTools');
+  // @ts-ignore
+  if (window.electron && window.electron.ipcRenderer) {
+    // @ts-ignore
+    window.electron.ipcRenderer.send('open-dev-tools');
+  } else if (window.api && window.api.openDevTools) {
+    // @ts-ignore
+    window.api.openDevTools();
+  } else if (window.ipcRenderer) {
+    // @ts-ignore
+    window.ipcRenderer.send('open-dev-tools');
+  }
+};
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
-
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -216,7 +225,6 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
-
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
@@ -228,7 +236,6 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
-
 const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
 const toggleEmojiPicker = () => { 
   showEmojiPicker.value = !showEmojiPicker.value; 
