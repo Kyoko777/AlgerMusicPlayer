@@ -74,8 +74,9 @@
           '--drift': bubble.drift + 'px'
         }"
       >
-        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white/50 shadow-lg bg-white/20 backdrop-blur-sm">
-          <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-cover" />
+        <!-- 气泡感圆形表情 -->
+        <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.3)] bg-white/30 backdrop-blur-md flex items-center justify-center p-1">
+          <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-contain rounded-full" />
         </div>
       </div>
     </div>
@@ -87,17 +88,17 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 表情包快捷选择面板 (气泡感) -->
+      <!-- 表情包快捷选择面板 (气泡感) - 扩展至12个表情 -->
       <div
         v-if="showEmojiPicker"
-        class="absolute -top-32 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-2xl p-3 rounded-3xl border border-white/20 shadow-2xl flex items-center space-x-2 animate-picker-pop"
+        class="absolute -top-40 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-3xl p-4 rounded-[2.5rem] border border-white/30 shadow-[0_32px_64px_rgba(0,0,0,0.4)] grid grid-cols-6 gap-3 animate-picker-pop"
         @mousedown.stop
       >
         <div
-          v-for="id in 9"
+          v-for="id in 12"
           :key="id"
           @click="sendEmoji(id)"
-          class="w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-125 hover:rotate-12 transition-all border border-white/10 active:scale-90"
+          class="w-11 h-11 rounded-full overflow-hidden cursor-pointer hover:scale-125 hover:rotate-12 transition-all border-2 border-white/20 shadow-lg active:scale-90 bg-white/10"
         >
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
         </div>
@@ -173,12 +174,13 @@
         </div>
       </div>
 
-      <div v-if="showEmojiPicker" class="flex-1 flex flex-wrap content-center justify-center gap-2 py-2">
+      <!-- 面板模式下的表情选择 -->
+      <div v-if="showEmojiPicker" class="flex-1 grid grid-cols-4 gap-2 content-center justify-items-center py-2 animate-picker-pop">
         <div
-          v-for="id in 9"
+          v-for="id in 12"
           :key="id"
           @click="sendEmoji(id)"
-          class="w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all active:scale-95 shadow-md"
+          class="w-9 h-9 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all active:scale-95 shadow-md border border-white/10"
         >
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
         </div>
@@ -254,14 +256,15 @@ const triggerBubble = (emojiId: number) => {
   const bubble = {
     id,
     emojiId,
-    x: isMinimized.value ? 20 : 80,
-    y: isMinimized.value ? 40 : 100,
-    drift: (Math.random() - 0.5) * 100
+    // 气泡起始位置在 Pingu 身体中心附近
+    x: position.value.x + (isMinimized.value ? 20 : 60),
+    y: position.value.y + (isMinimized.value ? 40 : 100),
+    drift: (Math.random() - 0.5) * 150
   };
   activeBubbles.value.push(bubble);
   setTimeout(() => {
     activeBubbles.value = activeBubbles.value.filter(b => b.id !== id);
-  }, 3000);
+  }, 3500);
 };
 
 watch(receivedEmoji, (newVal) => {
@@ -372,28 +375,34 @@ const leaveRoom = () => {
   transition: none !important;
 }
 
+/* 气泡漂浮动画 - 更加丝滑 */
 @keyframes bubble-float {
   0% {
-    transform: translateY(0) scale(0.5) rotate(0);
+    transform: translateY(0) scale(0.3) rotate(0);
     opacity: 0;
   }
-  20% {
+  15% {
     opacity: 1;
-    transform: translateY(-20px) scale(1.1) rotate(10deg);
+    transform: translateY(-30px) scale(1.1) rotate(15deg);
+  }
+  40% {
+    transform: translateY(-80px) translateX(calc(var(--drift) * 0.4)) scale(1) rotate(-10deg);
   }
   100% {
-    transform: translateY(-200px) translateX(var(--drift)) scale(1) rotate(-20deg);
+    transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg);
     opacity: 0;
   }
 }
 
 .bubble-animation {
-  animation: bubble-float 3s cubic-bezier(0.3, 0, 0.7, 1) forwards;
+  animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+  will-change: transform, opacity;
 }
 
+/* 选择面板弹出动画 */
 @keyframes picker-pop {
   0% {
-    transform: translate(-50%, 20px) scale(0.8);
+    transform: translate(-50%, 30px) scale(0.7);
     opacity: 0;
   }
   100% {
@@ -403,9 +412,10 @@ const leaveRoom = () => {
 }
 
 .animate-picker-pop {
-  animation: picker-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: picker-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+/* 基础动画 */
 @keyframes note-float-left {
   0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
   20% { opacity: 1; }
