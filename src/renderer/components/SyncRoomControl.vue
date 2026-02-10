@@ -37,7 +37,7 @@
       <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
       <div class="absolute inset-0 flex items-end justify-center">
         <img
-          src="@/assets/sync/pingu_bg.jpg"
+          :src="pinguBgUrl"
           class="w-[90%] h-auto object-contain opacity-50 translate-y-[5%]"
           draggable="false"
         />
@@ -90,7 +90,7 @@
 
       <!-- Pingu 身体 + 耳机 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+        <img :src="pinguHeadUrl" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
         <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
@@ -166,6 +166,9 @@ import { usePlayerStore } from '@/store/modules/player';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useSyncStore } from '@/store/modules/sync';
 
+import pinguBgUrl from '@/assets/sync/pingu_bg.jpg';
+import pinguHeadUrl from '@/assets/sync/pingu_head_v2.png';
+
 const { t } = useI18n();
 const syncStore = useSyncStore();
 const playerStore = usePlayerStore();
@@ -182,6 +185,15 @@ const showEmojiPicker = ref(false);
 const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
 const emojiQueue = ref<number[]>([]);
+
+const panelStyle = computed(() => {
+  return {
+    left: `${position.value.x}px`,
+    bottom: `${position.value.y}px`,
+    width: isMinimized.value ? '96px' : '240px',
+    height: isMinimized.value ? '96px' : '320px'
+  };
+});
 
 // Web Audio API 气泡合成音
 const playBubbleSound = (isPop = true) => {
@@ -243,7 +255,7 @@ watch(receivedEmoji, (newVal) => { if (newVal) { emojiQueue.value.push(newVal.id
 
 const triggerBubble = (emojiId: number) => {
   const id = Date.now() + Math.random();
-  const bubble = { id, emojiId, x: position.value.x + 20, y: position.value.y + 40, drift: (Math.random() - 0.5) * 150 };
+  const bubble = { id, emojiId, x: 40, y: 40, drift: (Math.random() - 0.5) * 150 };
   activeBubbles.value.push(bubble);
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
