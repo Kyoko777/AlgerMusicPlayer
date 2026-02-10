@@ -72,13 +72,13 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 表情包选择器 (收起模式) - 使用单独的 ball-pop 动画 -->
+      <!-- 表情包选择器 (收起模式) - 移至企鹅右侧，3x4 布局 -->
       <div
         v-if="showEmojiPicker"
-        class="absolute -top-64 left-1/2 bg-white/20 backdrop-blur-3xl p-5 rounded-[2.5rem] border border-white/30 shadow-2xl grid grid-cols-3 gap-4 animate-ball-pop"
+        class="absolute left-24 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-3xl p-4 rounded-[2.5rem] border border-white/30 shadow-2xl grid grid-cols-3 gap-3 animate-ball-pop-right"
         @mousedown.stop
       >
-        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-125 transition-all border-2 border-white/20 bg-white/10 shadow-sm">
+        <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-11 h-11 rounded-full overflow-hidden cursor-pointer hover:scale-125 transition-all border-2 border-white/20 bg-white/10 shadow-sm">
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
         </div>
       </div>
@@ -131,7 +131,7 @@
         </div>
       </div>
 
-      <!-- 内容区 - 修正动画导致的偏移 -->
+      <!-- 内容区 - 3x4 纵向排列 -->
       <div v-if="showEmojiPicker" class="flex-1 grid grid-cols-3 gap-x-2 gap-y-3 content-center justify-items-center py-2 animate-panel-pop">
         <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md">
           <img :src="getEmojiUrl(id)" class="w-full h-full object-cover" />
@@ -233,7 +233,7 @@ const panelStyle = computed(() => {
   if (isMinimized.value) {
     style.width = '100px'; style.height = '100px'; style.background = 'transparent'; style.border = 'none'; style.overflow = 'visible';
   } else {
-    style.width = '210px'; style.height = '250px'; style.background = theme.value === 'dark' ? '#000' : '#fff';
+    style.width = '200px'; style.height = '240px'; style.background = theme.value === 'dark' ? '#000' : '#fff';
   }
   return style;
 });
@@ -286,14 +286,14 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 }
 .bubble-animation { animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
 
-/* 针对球体模式的居中动画 */
-@keyframes ball-pop { 
-  0% { transform: translate(-50%, 30px) scale(0.7); opacity: 0; } 
-  100% { transform: translate(-50%, 0) scale(1); opacity: 1; } 
+/* 球体模式：从左向右弹出 */
+@keyframes ball-pop-right { 
+  0% { transform: translate(-20px, -50%) scale(0.7); opacity: 0; } 
+  100% { transform: translate(0, -50%) scale(1); opacity: 1; } 
 }
-.animate-ball-pop { animation: ball-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-ball-pop-right { animation: ball-pop-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-/* 针对面板模式的普通弹出动画（移除水平位移） */
+/* 面板模式：向上浮现 */
 @keyframes panel-pop {
   0% { transform: translateY(10px) scale(0.95); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
