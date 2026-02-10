@@ -52,53 +52,45 @@
     >
       <!-- 环形表情选择器 (缩小版，置于右侧) -->
       <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
-        <!-- 背景大气泡 -->
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
-        
-        <!-- 中心大表情 (发送区) -->
-        <div 
-          @click="sendEmoji(selectedEmojiId)"
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20"
-        >
+        <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
-          
-          <!-- 迷你蓝色猫爪果冻 -->
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center">
             <div class="w-full h-full bg-blue-400/50 backdrop-blur-[2px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-jelly shadow-[0_0_12px_rgba(59,130,246,0.5)]">
-              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
-                <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
-              </svg>
+              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
             </div>
           </div>
         </div>
-
-        <!-- 环绕的小表情 (缩小版) -->
-        <div 
-          v-for="id in 12" 
-          :key="id"
-          @mouseenter="handleEmojiHover(id)"
-          class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10"
-          :style="getOrbitStyle(id - 1, 72)"
-          :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }"
-        >
-          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden">
-            <img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" />
-          </div>
+        <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
+          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
         </div>
       </div>
 
-      <!-- Pingu 身体 -->
+      <!-- Pingu 身体 + 耳机 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+        <!-- 还原的大耳机 -->
+        <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
+          <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
+          <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+        </svg>
+      </div>
+
+      <!-- 还原的浮动音符粒子 -->
+      <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
+        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
+        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
+        <svg viewBox="0 0 24 24" :class="['absolute w-4 h-4 fill-current mix-blend-screen', isPlay ? 'animate-note-float-top' : 'opacity-0']" style="left: 48%; top: 15%; color: #ec4899"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
       </div>
     </div>
 
-    <!-- 完整面板模式 (内部保持紧凑的大气泡) -->
+    <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
       <div @mousedown="handleMouseDown" class="flex items-center justify-between cursor-move drag-handle border-b border-white/10 pb-2 mb-2">
         <div class="flex items-center space-x-1">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[9px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
+          <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? 'Linked' : 'Sync' }}</span>
         </div>
         <div class="flex items-center space-x-2">
           <button @click.stop="openDevTools" class="p-1 rounded-md bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 transition-all"><svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current text-blue-400"><path d="M12.89 3L14.85 3.4L11.11 21L9.15 20.6L12.89 3M7.11 17L1.4 12L7.11 7L8.53 8.42L4.25 12L8.53 15.58L7.11 17M16.89 17L15.47 15.58L19.75 12L15.47 8.42L16.89 7L22.6 12L16.89 17Z" /></svg></button>
@@ -119,17 +111,13 @@
             </div>
           </div>
           <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute w-7 h-7 cursor-pointer transition-all duration-300 hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 58)" :class="{ 'opacity-20 scale-75': id !== selectedEmojiId }">
-            <div class="w-full h-full rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm overflow-hidden">
-              <img :src="getEmojiUrl(id)" class="w-5 h-5 object-contain" />
-            </div>
+            <div class="w-full h-full rounded-full bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center shadow-sm overflow-hidden"><img :src="getEmojiUrl(id)" class="w-5 h-5 object-contain" /></div>
           </div>
         </div>
-
         <div v-else-if="isSetting" class="w-full flex flex-col space-y-2">
           <input v-model="serverUrlInput" type="text" placeholder="Server URL" class="w-full border rounded-lg px-2 py-1.5 text-[10px] bg-white/20 border-white/30 text-white" />
           <button @click="saveServerUrl" class="w-full py-1.5 bg-purple-500 text-white rounded-lg text-[10px] font-bold">Save</button>
         </div>
-
         <div v-else class="w-full flex flex-col space-y-2">
           <input v-model="roomInput" type="text" maxlength="8" placeholder="Room Code" class="w-full border rounded-lg px-2 py-1.5 text-xs text-center font-mono bg-white/20 border-white/30 text-white" />
           <button v-if="!isSyncing" @click="handleJoin('private')" class="py-1.5 bg-purple-500/40 hover:bg-purple-500/60 rounded-lg text-[10px] font-bold">JOIN ROOM</button>
@@ -246,27 +234,36 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
   100% { transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg); opacity: 0; }
 }
 .bubble-animation { animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
-
-@keyframes picker-pop-right {
-  from { opacity: 0; transform: translateY(-50%) scale(0.7) translateX(-20px); }
-  to { opacity: 1; transform: translateY(-50%) scale(1) translateX(0); }
-}
+@keyframes picker-pop-right { from { opacity: 0; transform: translateY(-50%) scale(0.7) translateX(-20px); } to { opacity: 1; transform: translateY(-50%) scale(1) translateX(0); } }
 .animate-ball-pop-right { animation: picker-pop-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-@keyframes picker-fade-in {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
+@keyframes picker-fade-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .animate-picker-fade-in { animation: picker-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-@keyframes jelly {
-  0%, 100% { transform: scale(1, 1); }
-  33% { transform: scale(1.15, 0.85); }
-  66% { transform: scale(0.85, 1.15); }
-}
+@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
 .animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
-.animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
+
+@keyframes note-float-left {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; }
+}
+@keyframes note-float-right {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; }
+}
+@keyframes note-float-top {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; }
+}
+@keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
+
+.animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
+.animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
+.animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
+.animate-headphone-vibrate { animation: headphone-vibrate 0.4s infinite ease-in-out; transform-origin: center; }
+.animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
