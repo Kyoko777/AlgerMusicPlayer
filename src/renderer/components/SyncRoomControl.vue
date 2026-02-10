@@ -5,7 +5,7 @@
     class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out bg-transparent"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/20': !isMinimized,
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20': !isMinimized,
       'dragging-active': isDragging
     }"
   >
@@ -34,19 +34,20 @@
 
     <!-- 1. 背景层 (展开模式) -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
-      <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
+      <!-- 极简白色背景 -->
+      <div class="absolute inset-0 bg-[#fdfcff] dark:bg-[#0f172a]"></div>
       
-      <!-- Pingu 背景图 - 底部对齐，宽度 100% 以对齐左右两侧 -->
-      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center overflow-hidden">
+      <!-- Pingu 背景图 - 底部柔和嵌入 -->
+      <div class="absolute inset-x-0 bottom-0 h-[45%] flex items-end justify-center overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-full h-auto object-cover opacity-20 mix-blend-multiply dark:mix-blend-lighten dark:opacity-10"
+          class="w-full h-auto object-contain opacity-20 dark:opacity-10 grayscale-[0.2] contrast-[0.8]"
           draggable="false"
         />
       </div>
       
-      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-purple-500/5"></div>
-      <div class="absolute inset-0 backdrop-blur-[1px]" :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-purple-500/5 via-transparent to-transparent"></div>
+      <div class="absolute inset-0 backdrop-blur-[1px]" :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/10'"></div>
     </div>
 
     <!-- 2. 表情包浮动气泡层 (全局可见) -->
@@ -109,17 +110,17 @@
 
     <!-- 4. 完整面板模式 (展开) -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-        <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
-          <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
-          <span class="text-[10px] font-bold tracking-tighter opacity-80 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+      <!-- 顶部状态栏 -->
+      <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 pb-3 mb-4">
+        <div @mousedown="handleMouseDown" class="flex items-center space-x-2 cursor-move flex-1 h-full">
+          <div :class="['w-2.5 h-2.5 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-300']"></div>
+          <span class="text-[11px] font-black tracking-tight opacity-70 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
         </div>
-        <div class="flex items-center space-x-2" @mousedown.stop>
-          <button @click="toggleEmojiPicker" class="p-1 rounded-md bg-yellow-400/20 hover:bg-yellow-400/40 border border-yellow-400/30 transition-all active:scale-95" :class="{ 'bg-yellow-400/50': showEmojiPicker }">
+        <div class="flex items-center space-x-3" @mousedown.stop>
+          <button @click="toggleEmojiPicker" class="p-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 transition-all active:scale-95" :class="{ 'bg-yellow-400/40 shadow-inner': showEmojiPicker }">
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
-          <!-- 完美对称极简音符图标 -->
-          <button @click="toggleSettings" class="p-1.5 rounded-md hover:rotate-12 transition-all active:scale-95" :class="{ 'bg-purple-500/30 shadow-inner': isSetting }">
+          <button @click="toggleSettings" class="p-1.5 rounded-lg hover:bg-purple-500/10 transition-all active:scale-95" :class="{ 'bg-purple-500/20 shadow-inner': isSetting }">
             <svg viewBox="0 0 24 24" class="w-5 h-5">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
@@ -128,32 +129,42 @@
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" />
             </svg>
           </button>
-          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all opacity-60 hover:opacity-100"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 relative z-10 flex flex-col items-center">
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 px-1 animate-panel-pop w-full">
-          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/10 active:scale-90 flex items-center justify-center mx-auto"><img :src="getEmojiUrl(id)" class="w-10 h-10 object-contain" /></div>
+      <!-- 内容区 -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
+        <!-- 1. 表情列表 -->
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 px-1 animate-panel-pop w-full">
+          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-2xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[80%] h-[80%] object-contain" /></div>
         </div>
-        <div v-else-if="isSetting" class="flex flex-col space-y-4 pt-4 px-1 w-full items-center">
-          <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest w-full text-left pl-1">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-[11px] font-bold outline-none transition-all bg-white/70 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+
+        <!-- 2. 设置面板 -->
+        <div v-else-if="isSetting" class="w-full flex flex-col space-y-5 pt-2">
+          <div class="space-y-2">
+            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] pl-1">{{ t('sync.endpoint') }}</div>
+            <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3 text-[12px] font-bold outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-300 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          </div>
+          <button @click="saveServerUrl" class="w-full py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg shadow-purple-500/20 active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
-        <div v-else class="flex flex-col space-y-3 pt-2 w-full items-center">
-          <div v-if="!isSyncing" class="space-y-4 w-full flex flex-col items-center">
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest w-full text-left pl-1">{{ t('sync.code') }}</div>
-            <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-3 text-lg text-center font-black tracking-[0.5em] bg-white/70 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
-            <div class="grid grid-cols-2 gap-2 w-full">
-              <button @click="handleJoin('private')" class="py-3 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:scale-95 transition-transform">{{ t('sync.privateRoom') }}</button>
-              <button @click="handleJoin('public')" class="py-3 bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:scale-95 transition-transform">{{ t('sync.publicRoom') }}</button>
+
+        <!-- 3. 同步控制面板 -->
+        <div v-else class="w-full flex flex-col space-y-6 pt-2">
+          <div v-if="!isSyncing" class="space-y-6 w-full flex flex-col items-center">
+            <div class="space-y-2 w-full">
+              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] pl-1">{{ t('sync.code') }}</div>
+              <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-300 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
+            </div>
+            <div class="grid grid-cols-2 gap-3 w-full">
+              <button @click="handleJoin('private')" class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl hover:translate-y-[-2px] transition-all">{{ t('sync.privateRoom') }}</button>
+              <button @click="handleJoin('public')" class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm hover:translate-y-[-2px] transition-all">{{ t('sync.publicRoom') }}</button>
             </div>
           </div>
-          <div v-else class="flex flex-col items-center justify-center space-y-2 py-4 rounded-xl border-2 bg-white/80 border-purple-200 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full">
-            <div class="text-[8px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.3em]">{{ t('sync.quantumRoom') }}</div>
-            <div class="text-3xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white">{{ roomId }}</div>
-            <button @click="leaveRoom" class="text-[10px] text-red-500 font-black uppercase mt-2 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
+          <div v-else class="flex flex-col items-center justify-center space-y-4 py-8 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full shadow-inner">
+            <div class="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em]">{{ t('sync.quantumRoom') }}</div>
+            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white">{{ roomId }}</div>
+            <button @click="leaveRoom" class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
           </div>
         </div>
       </div>
@@ -197,8 +208,8 @@ const panelStyle = computed(() => {
   return {
     left: `${position.value.x}px`,
     bottom: `${position.value.y}px`,
-    width: isMinimized.value ? '96px' : '240px',
-    height: isMinimized.value ? '96px' : '320px',
+    width: isMinimized.value ? '96px' : '260px',
+    height: isMinimized.value ? '96px' : '340px',
     display: 'flex',
     visibility: 'visible',
     opacity: '1'
@@ -296,8 +307,6 @@ const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value
 const toggleSettings = () => { isSetting.value = !isSetting.value; if (isSetting.value) showEmojiPicker.value = false; };
 onMounted(() => { 
   serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || '';
-  // 强制检查 anchor 是否存在
-  console.log('SyncRoomControl mounted, anchor:', document.getElementById('sync-room-anchor'));
 });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
