@@ -43,7 +43,7 @@
       <div class="absolute inset-0 backdrop-blur-[2px]" :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"></div>
     </div>
 
-    <!-- 表情包浮动气泡层 (释放后的长路径) -->
+    <!-- 表情包浮动气泡层 -->
     <div class="absolute inset-0 pointer-events-none overflow-visible z-50">
       <div v-for="bubble in activeBubbles" :key="bubble.id" class="absolute bubble-animation" :style="{ left: bubble.x + 'px', bottom: bubble.y + 'px', '--drift': bubble.drift + 'px' }">
         <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-[0_0_20px_rgba(59,130,246,0.4)] bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
@@ -59,7 +59,7 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 【待命气泡层】在 Pingu 头部附近停留的未释放气泡 -->
+      <!-- 【待命气泡层】 -->
       <div class="absolute inset-0 pointer-events-none overflow-visible z-30">
         <div 
           v-for="(queuedEmojiId, index) in emojiQueue.slice(0, 5)" 
@@ -69,22 +69,23 @@
         >
           <img :src="getEmojiUrl(queuedEmojiId)" class="w-full h-full object-contain opacity-80" />
         </div>
-        <!-- 气泡数量角标 (如果超过5个) -->
         <div v-if="emojiQueue.length > 5" class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg border border-white">
           +{{ emojiQueue.length - 5 }}
         </div>
       </div>
 
-      <!-- 表情包快捷选择面板 (环形轨道) -->
+      <!-- 表情包快捷选择面板 -->
       <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
           <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center overflow-visible">
+            <div class="absolute inset-0 pointer-events-none">
+              <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            </div>
             <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
               <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
             </div>
-            <div class="absolute inset-0 pointer-events-none"><svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg></div>
           </div>
         </div>
         <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
@@ -112,7 +113,6 @@
 
     <!-- 完整面板模式 -->
     <div v-else class="relative z-10 h-full flex flex-col justify-between p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- ... (Header and scrollable content logic remains the same) ... -->
       <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-1 cursor-move flex-1 h-full">
           <div :class="['w-2 h-2 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-400']"></div>
@@ -182,6 +182,36 @@ const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
 const emojiQueue = ref<number[]>([]);
 
+// Web Audio API 气泡合成音
+const playBubbleSound = (isPop = true) => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    // 收到气泡是清脆的"plop"，释放气泡是圆润的"pop"
+    const startFreq = isPop ? 800 : 400;
+    const endFreq = isPop ? 1200 : 200;
+
+    osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.1);
+
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch (e) {
+    console.warn('Audio play failed:', e);
+  }
+};
+
 const getOrbitStyle = (index: number, radius: number = 95) => {
   const angle = (index * 360) / 12;
   return { transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)` };
@@ -195,7 +225,6 @@ const getHeartStyle = (i: number) => {
 };
 
 const getQueuePosition = (index: number) => {
-  // 气泡分布在 Pingu 头顶周围
   const angles = [-45, -15, 15, 45, 0];
   const distances = [50, 60, 55, 52, 65];
   const angle = angles[index % 5];
@@ -219,10 +248,10 @@ const sendEmoji = (id: number) => {
   triggerBubble(id); 
 };
 
-// 收到 Eric 的表情，先入队
 watch(receivedEmoji, (newVal) => { 
   if (newVal) {
     emojiQueue.value.push(newVal.id);
+    playBubbleSound(true); // 收到时播放清脆提示音
   } 
 });
 
@@ -232,19 +261,6 @@ const triggerBubble = (emojiId: number) => {
   activeBubbles.value.push(bubble);
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
-
-const openDevTools = () => { if (window.electron && window.electron.ipcRenderer) window.electron.ipcRenderer.send('open-dev-tools'); };
-
-const panelStyle = computed(() => {
-  const style: any = {
-    left: `${position.value.x}px`, bottom: `${position.value.y}px`,
-    transition: isDragging.value ? 'none' : 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-    overflow: isMinimized.value ? 'visible' : 'hidden'
-  };
-  if (isMinimized.value) { style.width = '100px'; style.height = '100px'; }
-  else { style.width = '240px'; style.height = '320px'; }
-  return style;
-});
 
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
@@ -262,9 +278,11 @@ const handleBallClick = () => {
   const duration = Date.now() - dragStartTime;
   if (duration < 200) {
     if (emojiQueue.value.length > 0) {
-      // 收到表情后，点击 Pingu 释放一个气泡
       const id = emojiQueue.value.shift();
-      if (id) triggerBubble(id);
+      if (id) {
+        triggerBubble(id);
+        playBubbleSound(false); // 释放时播放圆润波普音
+      }
     } else if (showEmojiPicker.value) {
       showEmojiPicker.value = false;
     } else {
@@ -273,6 +291,7 @@ const handleBallClick = () => {
   } 
 };
 
+const openDevTools = () => { if (window.electron && window.electron.ipcRenderer) window.electron.ipcRenderer.send('open-dev-tools'); };
 const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; if (showEmojiPicker.value) isSetting.value = false; };
 const toggleSettings = () => { isSetting.value = !isSetting.value; if (isSetting.value) showEmojiPicker.value = false; };
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
@@ -300,20 +319,11 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
 @keyframes queue-hover { 0%, 100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-5px); } }
 .animate-queue-hover { animation: queue-hover 2s infinite ease-in-out; }
-
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
-@keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
-@keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
-@keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
-.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
-.animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
-.animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
-.animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
 .animate-headphone-vibrate { animation: headphone-vibrate 0.4s infinite ease-in-out; transform-origin: center; }
 .animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
