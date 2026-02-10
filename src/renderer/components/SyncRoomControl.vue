@@ -34,27 +34,27 @@
       </defs>
     </svg>
 
-    <!-- 面板背景层 - 淡紫色渐变 + 右下角 Pingu 图 -->
+    <!-- 面板背景层 - 极其通透的淡紫色渐变 + 底部居中 Pingu 图 -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0">
-      <!-- 1. 淡紫色渐变底色 (更清透) -->
-      <div class="absolute inset-0 bg-gradient-to-br from-[#fdfcfe] via-[#f5f3ff] to-[#ede9fe] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
+      <!-- 1. 极其清爽的淡紫色背景 (低灰度) -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fdfaff] to-[#f5f0ff] dark:from-[#0f172a] dark:to-[#1e1b4b]"></div>
       
-      <!-- 2. Pingu 背景图，精准停留在右下角 -->
-      <div class="absolute right-[-10%] bottom-[-10%] w-[110%] h-[110%] flex items-end justify-end pointer-events-none overflow-hidden">
+      <!-- 2. Pingu 背景图，底部居中放置 -->
+      <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-center pointer-events-none overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[85%] h-auto object-contain opacity-50 mix-blend-multiply dark:mix-blend-screen dark:opacity-20"
+          class="w-[85%] h-auto object-contain opacity-40 mix-blend-multiply dark:mix-blend-lighten dark:opacity-20 translate-y-[10%]"
           draggable="false"
         />
       </div>
       
-      <!-- 3. 高清磨砂玻璃层 (微弱模糊增加空间感) -->
+      <!-- 3. 极弱磨砂玻璃层 (几乎透明) -->
       <div
-        class="absolute inset-0 backdrop-blur-[4px]"
+        class="absolute inset-0 backdrop-blur-[2px]"
         :class="
           theme === 'dark'
-            ? 'bg-black/20'
-            : 'bg-white/10'
+            ? 'bg-black/10'
+            : 'bg-white/5'
         "
       ></div>
     </div>
@@ -168,7 +168,7 @@
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <!-- 心电同步线作为唯一的连接 (高度微调至 y=7) -->
+              <!-- 心电同步线 (高度微调至 y=7) -->
               <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,11 L11,12 L12.5,7 L14,14 L16,10 L19,12" />
             </svg>
           </button>
@@ -182,14 +182,14 @@
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
         </div>
 
-        <!-- 2. 服务器设置模式 -->
+        <!-- 2. 服务器设置模式 (强对比度) -->
         <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
           <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-2.5 text-xs font-bold outline-none transition-all bg-white border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-2.5 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
-        <!-- 3. 房间选择模式 -->
+        <!-- 3. 房间选择模式 (强对比度 + 居中文案) -->
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
             <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.code') }}</div>
