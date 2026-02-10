@@ -116,7 +116,7 @@
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
           </button>
           <button @click="toggleSettings" class="p-1.5 rounded-lg hover:bg-purple-500/10 transition-all active:scale-95" :class="{ 'bg-purple-500/20 shadow-inner': isSetting }">
-            <svg viewBox="0 0 24 24" class="w-5 h-5">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 flex items-center justify-center">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
@@ -129,26 +129,26 @@
       </div>
 
       <!-- 内容区 - 实现全量居中对齐 -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full px-1">
+      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
         <!-- 1. 表情宫格 -->
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full animate-panel-pop">
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full px-1 animate-panel-pop">
           <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-2xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-[80%] h-[80%] object-contain" /></div>
         </div>
 
         <!-- 2. 服务器设置面板 -->
-        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-2">
+        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-4 pt-2 px-1">
           <div class="w-full text-center">
-            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] inline-block">{{ t('sync.endpoint') }}</div>
+            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center">{{ t('sync.endpoint') }}</div>
           </div>
           <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-4 py-3 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white" />
           <button @click="saveServerUrl" class="w-full py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
 
         <!-- 3. 同步主面板 -->
-        <div v-else class="w-full flex flex-col items-center space-y-5 pt-2">
+        <div v-else class="w-full flex flex-col items-center space-y-5 pt-2 px-1">
           <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-5">
             <div class="w-full text-center">
-              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed">{{ t('sync.code') }}</div>
+              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center">{{ t('sync.code') }}</div>
             </div>
             <input v-model="roomInput" type="text" @mousedown.stop maxlength="8" placeholder="" class="w-full border-2 rounded-xl px-2 py-4 text-xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none" />
             <div class="grid grid-cols-2 gap-3 w-full">
@@ -157,8 +157,8 @@
             </div>
           </div>
           <div v-else class="flex flex-col items-center justify-center space-y-3 py-8 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full">
-            <div class="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em]">{{ t('sync.quantumRoom') }}</div>
-            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white">{{ roomId }}</div>
+            <div class="text-[9px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center">{{ t('sync.quantumRoom') }}</div>
+            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white w-full text-center">{{ roomId }}</div>
             <button @click="leaveRoom" class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4">{{ t('sync.disconnect') }}</button>
           </div>
         </div>
