@@ -35,15 +35,18 @@
     <!-- 1. 背景层 (展开模式) -->
     <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
       <div class="absolute inset-0 bg-[#fbfaff] dark:bg-[#0f172a]"></div>
-      <div class="absolute inset-0 flex items-end justify-center">
+      
+      <!-- Pingu 背景图 - 底部居中，优化位置和大小 -->
+      <div class="absolute inset-x-0 bottom-0 h-[65%] flex items-end justify-center overflow-hidden">
         <img
           src="@/assets/sync/pingu_bg.jpg"
-          class="w-[90%] h-auto object-contain opacity-50 translate-y-[5%]"
+          class="w-full h-full object-cover opacity-30 mix-blend-multiply dark:mix-blend-lighten dark:opacity-10"
           draggable="false"
         />
       </div>
-      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-purple-500/5 to-purple-500/10"></div>
-      <div class="absolute inset-0 backdrop-blur-[2px]" :class="theme === 'dark' ? 'bg-black/20' : 'bg-white/5'"></div>
+      
+      <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-purple-500/5"></div>
+      <div class="absolute inset-0 backdrop-blur-[1px]" :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"></div>
     </div>
 
     <!-- 2. 表情包浮动气泡层 (全局可见) -->
@@ -130,13 +133,13 @@
       </div>
 
       <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 relative z-10">
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 animate-panel-pop">
-          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/5 active:scale-90"><img :src="getEmojiUrl(id)" class="w-12 h-12 object-cover" /></div>
+        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-3 py-2 px-1 animate-panel-pop">
+          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-all border border-white/20 shadow-md bg-white/10 active:scale-90 flex items-center justify-center"><img :src="getEmojiUrl(id)" class="w-10 h-10 object-contain" /></div>
         </div>
-        <div v-else-if="isSetting" class="flex flex-col space-y-3 pt-2">
-          <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest">{{ t('sync.endpoint') }}</div>
-          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-xs font-bold outline-none transition-all bg-white/50 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
-          <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
+        <div v-else-if="isSetting" class="flex flex-col space-y-4 pt-4 px-2">
+          <div class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-widest pl-1">{{ t('sync.endpoint') }}</div>
+          <input v-model="serverUrlInput" type="text" @mousedown.stop placeholder="https://..." class="w-full border-2 rounded-xl px-3 py-3 text-[11px] font-bold outline-none transition-all bg-white/60 border-purple-100 text-gray-900 dark:bg-black/30 dark:border-white/10 dark:text-white" />
+          <button @click="saveServerUrl" class="w-full py-3 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all">{{ t('sync.save') }}</button>
         </div>
         <div v-else class="flex flex-col space-y-3 pt-2">
           <div v-if="!isSyncing" class="space-y-3 text-center">
@@ -326,6 +329,8 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 @keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
 @keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
+.custom-scrollbar::-webkit-scrollbar { width: 0px; }
+.custom-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
 .animate-headphone-vibrate { animation: headphone-vibrate 0.4s infinite ease-in-out; transform-origin: center; }
