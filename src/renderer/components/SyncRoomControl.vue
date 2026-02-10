@@ -50,34 +50,49 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-24 h-24 flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <!-- 环形表情选择器 (缩小版，置于右侧) -->
+      <!-- 环形表情选择器 -->
       <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
-        <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
+        
+        <!-- 中心发送按钮 (带呼吸动画与蓝色爱心) -->
+        <div 
+          @click="sendEmoji(selectedEmojiId)"
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20"
+        >
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
-          <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div class="w-full h-full bg-blue-400/50 backdrop-blur-[2px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-jelly shadow-[0_0_12px_rgba(59,130,246,0.5)]">
-              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
+          
+          <!-- 蓝色猫爪发送按钮 -->
+          <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center overflow-visible">
+            <!-- 蓝色爱心粒子 -->
+            <div class="absolute inset-0 pointer-events-none">
+              <svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+            
+            <!-- 呼吸猫爪按钮 -->
+            <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
+              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+                <path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" />
+              </svg>
             </div>
           </div>
         </div>
+
+        <!-- 环绕的小表情 -->
         <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
           <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
         </div>
       </div>
 
-      <!-- Pingu 身体 + 耳机 -->
       <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
         <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
-        <!-- 还原的大耳机 -->
         <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
           <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
           <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
           <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
         </svg>
       </div>
-
-      <!-- 还原的浮动音符粒子 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
         <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
@@ -104,8 +119,9 @@
           <div class="absolute w-32 h-32 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm"></div>
           <div @click="sendEmoji(selectedEmojiId)" class="relative z-20 w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center cursor-pointer group/pan transition-all hover:scale-110 shadow-lg">
             <img :src="getEmojiUrl(selectedEmojiId)" class="w-12 h-12 object-contain" />
-            <div class="absolute inset-0 opacity-0 group-hover/pan:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div class="w-full h-full bg-blue-500/30 backdrop-blur-[1px] rounded-full border border-blue-400/40 animate-jelly">
+            <div class="absolute inset-0 opacity-0 group-hover/pan:opacity-100 transition-opacity duration-300 flex items-center justify-center overflow-visible">
+              <div class="absolute inset-0"><svg v-for="i in 3" :key="i" viewBox="0 0 24 24" class="absolute w-3 h-3 fill-blue-300 animate-heart-float" :style="getHeartStyle(i, 40)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg></div>
+              <div class="w-full h-full bg-blue-500/40 backdrop-blur-[1px] rounded-full border border-blue-400/40 animate-breathe">
                 <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
               </div>
             </div>
@@ -161,30 +177,32 @@ const getOrbitStyle = (index: number, radius: number = 95) => {
   return { transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)` };
 };
 
-const handleEmojiHover = (id: number) => { selectedEmojiId.value = id; };
+const getHeartStyle = (i: number, spread: number = 60) => {
+  const delays = [0, 0.5, 1, 1.5];
+  const lefts = [20, 50, 80, 40];
+  const bottoms = [30, 60, 40, 70];
+  return {
+    left: `${lefts[i-1]}%`,
+    bottom: `${bottoms[i-1]}%`,
+    animationDelay: `${delays[i-1]}s`
+  };
+};
 
+const handleEmojiHover = (id: number) => { selectedEmojiId.value = id; };
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
 let dragStartTime = 0;
-
 const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
-
-const sendEmoji = (id: number) => {
-  syncStore.sendSync('send_emoji', { emojiId: id });
-  triggerBubble(id);
-};
-
+const sendEmoji = (id: number) => { syncStore.sendSync('send_emoji', { emojiId: id }); triggerBubble(id); };
 const triggerBubble = (emojiId: number) => {
   const id = Date.now() + Math.random();
   const bubble = { id, emojiId, x: position.value.x + (isMinimized.value ? 20 : 60), y: position.value.y + (isMinimized.value ? 40 : 100), drift: (Math.random() - 0.5) * 150 };
   activeBubbles.value.push(bubble);
   setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
 };
-
 const openDevTools = () => { if (window.ipcRenderer) window.ipcRenderer.send('open-dev-tools'); };
 watch(receivedEmoji, (newVal) => { if (newVal) triggerBubble(newVal.id); });
-
 const panelStyle = computed(() => {
   const style: any = {
     left: `${position.value.x}px`, bottom: `${position.value.y}px`,
@@ -195,7 +213,6 @@ const panelStyle = computed(() => {
   else { style.width = '240px'; style.height = '320px'; }
   return style;
 });
-
 const handleMouseDown = (e: MouseEvent) => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLButtonElement) return;
   isDragging.value = true; dragStartTime = Date.now();
@@ -203,26 +220,15 @@ const handleMouseDown = (e: MouseEvent) => {
   const handleMouseMove = (moveEvent: MouseEvent) => {
     if (isDragging.value) position.value = { x: moveEvent.clientX - dragOffset.value.x, y: window.innerHeight - moveEvent.clientY - dragOffset.value.y };
   };
-  const handleMouseUp = () => {
-    setTimeout(() => { isDragging.value = false; }, 50);
-    document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp);
-  };
+  const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
   document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
 };
-
-const handleBallClick = () => {
-  const duration = Date.now() - dragStartTime;
-  if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); }
-};
-
+const handleBallClick = () => { const duration = Date.now() - dragStartTime; if (duration < 200) { if (showEmojiPicker.value) showEmojiPicker.value = false; else toggleMinimize(); } };
 const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; isSetting.value = false; };
 onMounted(() => { serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || ''; });
 const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
 const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
-const handleJoin = (type: 'private' | 'public') => {
-  if (!roomInput.value) roomInput.value = Math.random().toString(36).substring(7).toUpperCase();
-  syncStore.initSync(roomInput.value, type);
-};
+const handleJoin = (type: 'private' | 'public') => { if (!roomInput.value) roomInput.value = Math.random().toString(36).substring(7).toUpperCase(); syncStore.initSync(roomInput.value, type); };
 const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 </script>
 
@@ -238,27 +244,29 @@ const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
 .animate-ball-pop-right { animation: picker-pop-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 @keyframes picker-fade-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 .animate-picker-fade-in { animation: picker-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
-.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 
-@keyframes note-float-left {
-  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; }
+/* 呼吸动画 */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
 }
-@keyframes note-float-right {
-  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; }
+.animate-breathe { animation: breathe 3s infinite ease-in-out; }
+
+/* 蓝色小爱心浮动动画 */
+@keyframes heart-float {
+  0% { transform: translateY(0) scale(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-40px) scale(1.2) rotate(20deg); opacity: 0; }
 }
-@keyframes note-float-top {
-  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; }
-}
+.animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
+
+@keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
+@keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
+@keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
 @keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
 @keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-
+@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 33% { transform: scale(1.15, 0.85); } 66% { transform: scale(0.85, 1.15); } }
+.animate-jelly { animation: jelly 0.6s infinite ease-in-out; }
 .animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
 .animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
 .animate-note-float-top { animation: note-float-top 4s infinite ease-out; }
