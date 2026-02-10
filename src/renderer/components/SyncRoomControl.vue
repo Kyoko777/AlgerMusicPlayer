@@ -76,12 +76,6 @@
         <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
         <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
           <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
-          <div class="absolute inset-0 opacity-0 group-hover/center:opacity-100 transition-opacity duration-300 flex items-center justify-center overflow-visible">
-            <div class="w-full h-full bg-blue-500/50 backdrop-blur-[3px] rounded-full flex items-center justify-center border-2 border-blue-200/60 animate-breathe shadow-[0_0_15px_rgba(59,130,246,0.6)]">
-              <svg viewBox="0 0 100 100" class="w-10 h-10 fill-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]"><path d="M50,45c-11,0-20,9-20,20s9,20,20,20s20-9,20-20S61,45,50,45z M25,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S29.4,40,25,40z M40,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S44.4,20,40,20z M60,20c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S64.4,20,60,20z M75,40c-4.4,0-8,3.6-8,8s3.6,8,8,8s8-3.6,8-8S79.4,40,75,40z" /></svg>
-            </div>
-            <div class="absolute inset-0 pointer-events-none"><svg v-for="i in 4" :key="i" viewBox="0 0 24 24" class="absolute w-4 h-4 fill-blue-400 animate-heart-float" :style="getHeartStyle(i)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg></div>
-          </div>
         </div>
         <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
           <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
@@ -105,7 +99,7 @@
 
     <!-- 4. 完整面板模式 (展开) -->
     <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
-      <!-- 顶部状态栏 - 恢复 11:30 经典按钮组布局 -->
+      <!-- 顶部状态栏 -->
       <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 pb-3 mb-4">
         <div @mousedown="handleMouseDown" class="flex items-center space-x-2 cursor-move flex-1 h-full">
           <div :class="['w-2.5 h-2.5 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-300']"></div>
@@ -128,7 +122,7 @@
         </div>
       </div>
 
-      <!-- 内容区 - 实现全量居中对齐 -->
+      <!-- 内容区 -->
       <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
         <!-- 1. 表情宫格 -->
         <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-2 w-full px-1 animate-panel-pop">
@@ -139,7 +133,7 @@
         <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-6 pt-4 px-4">
           <div class="w-full text-center">
             <div
-              class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] w-full text-center"
+              class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.1em] whitespace-nowrap w-full text-center mx-auto"
             >
               {{ t('sync.endpoint') }}
             </div>
@@ -168,7 +162,7 @@
           <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-6">
             <div class="w-full text-center">
               <div
-                class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.2em] leading-relaxed w-full text-center"
+                class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-tight leading-relaxed w-full text-center mx-auto whitespace-nowrap"
               >
                 {{ t('sync.code') }}
               </div>
@@ -291,13 +285,6 @@ const playBubbleSound = (isPop = true) => {
 const getOrbitStyle = (index: number, radius: number = 95) => {
   const angle = (index * 360) / 12;
   return { transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)` };
-};
-
-const getHeartStyle = (i: number) => {
-  const delays = [0, 0.5, 1, 1.5];
-  const lefts = [20, 50, 80, 40];
-  const bottoms = [30, 60, 40, 70];
-  return { left: `${lefts[i-1]}%`, bottom: `${bottoms[i-1]}%`, animationDelay: `${delays[i-1]}s` };
 };
 
 const getQueuePosition = (index: number) => {
