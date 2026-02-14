@@ -2,11 +2,13 @@
   <div
     ref="panelRef"
     id="sync-room-anchor"
-    class="sync-room-control fixed z-[999999] select-none transition-all duration-700 ease-in-out bg-transparent"
+    class="sync-room-control fixed z-[999999] select-none bg-transparent"
     :style="panelStyle"
     :class="{
-      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 overflow-hidden': !isMinimized,
-      'dragging-active': isDragging
+      'rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 overflow-hidden':
+        !isMinimized,
+      'dragging-active': isDragging,
+      'panel-transition': !isDragging
     }"
   >
     <!-- 渐变与滤镜定义 -->
@@ -18,10 +20,20 @@
         </linearGradient>
         <linearGradient id="headphone-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color: #ff00ff; stop-opacity: 1">
-            <animate attributeName="stop-color" values="#ff00ff;#7000ff;#00ffff;#ff00ff" dur="4s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="#ff00ff;#7000ff;#00ffff;#ff00ff"
+              dur="4s"
+              repeatCount="indefinite"
+            />
           </stop>
           <stop offset="100%" style="stop-color: #00ffff; stop-opacity: 1">
-            <animate attributeName="stop-color" values="#00ffff;#ff00ff;#7000ff;#00ffff" dur="4s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="#00ffff;#ff00ff;#7000ff;#00ffff"
+              dur="4s"
+              repeatCount="indefinite"
+            />
           </stop>
         </linearGradient>
         <linearGradient id="ekg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -32,27 +44,41 @@
       </defs>
     </svg>
 
-    <!-- 1. 背景层 (优化对齐与尺寸) -->
-    <div v-if="!isMinimized" class="absolute inset-0 z-0 overflow-hidden rounded-2xl pointer-events-none">
-      <div class="absolute inset-0 bg-[#fdfcff] dark:bg-[#0f172a]"></div>
-      
-      <!-- Pingu 背景图 - 左右与输入框对齐，适当缩小并往上提 -->
-      <div class="absolute inset-x-4 bottom-12 top-20 flex items-center justify-center overflow-hidden rounded-xl">
-        <img
-          src="@/assets/sync/pingu_bg.jpg"
-          class="w-full h-full object-contain opacity-30 dark:opacity-10 grayscale-[0.1]"
-          draggable="false"
-        />
-      </div>
-      
-      <div class="absolute inset-0 backdrop-blur-[1px]" :class="theme === 'dark' ? 'bg-black/10' : 'bg-white/5'"></div>
-    </div>
+    <!-- 1. 背景层 (毛玻璃) -->
+    <div
+      v-if="!isMinimized"
+      class="absolute inset-0 z-0 rounded-2xl pointer-events-none"
+      :class="
+        theme === 'dark' ? 'bg-[#1a1a2e]/90 backdrop-blur-2xl' : 'bg-white/85 backdrop-blur-2xl'
+      "
+    ></div>
 
-    <!-- 2. 表情包浮动气泡层 (全局可见) -->
-    <div class="absolute inset-0 pointer-events-none overflow-visible z-[100]">
-      <div v-for="bubble in activeBubbles" :key="bubble.id" class="absolute bubble-animation" :style="{ left: bubble.x + 'px', bottom: bubble.y + 'px', '--drift': bubble.drift + 'px' }">
-        <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-400/80 shadow-lg bg-blue-100/20 backdrop-blur-md flex items-center justify-center p-1">
-          <img :src="getEmojiUrl(bubble.emojiId)" class="w-full h-full object-contain rounded-full" />
+    <!-- 2. 表情气泡堆叠层 -->
+    <div class="absolute inset-0 overflow-visible z-[100] pointer-events-none">
+      <div
+        v-for="(bubble, idx) in activeBubbles"
+        :key="bubble.id"
+        class="absolute pointer-events-auto cursor-pointer"
+        :class="bubble.popping ? 'bubble-pop-out' : 'bubble-pop-in bubble-float-idle'"
+        :style="getBubbleStyle(idx)"
+        @mousedown.stop="destroyBubble(bubble.id)"
+      >
+        <div
+          class="rounded-full flex items-center justify-center p-[3px]"
+          :style="{
+            width: '100%',
+            height: '100%',
+            background: bubble.ringGradient
+          }"
+        >
+          <div
+            class="w-full h-full rounded-full bg-white/90 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-center overflow-hidden shadow-lg"
+          >
+            <img
+              :src="getEmojiUrl(bubble.emojiId)"
+              class="w-[75%] h-[75%] object-cover rounded-full"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -65,150 +91,319 @@
       @contextmenu.prevent="toggleEmojiPicker"
       class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
-      <div class="absolute inset-0 pointer-events-none overflow-visible z-30">
-        <div v-for="(queuedEmojiId, index) in emojiQueue.slice(0, 5)" :key="index" class="absolute w-8 h-8 rounded-full border-2 border-blue-400/50 bg-blue-100/30 backdrop-blur-sm overflow-hidden animate-queue-hover" :style="getQueuePosition(index)">
-          <img :src="getEmojiUrl(queuedEmojiId)" class="w-full h-full object-contain opacity-80" />
-        </div>
-        <div v-if="emojiQueue.length > 5" class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-lg border border-white">+{{ emojiQueue.length - 5 }}</div>
-      </div>
-
-      <div v-if="showEmojiPicker" class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right" @mousedown.stop>
-        <div class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"></div>
-        <div @click="sendEmoji(selectedEmojiId)" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20">
-          <img :src="getEmojiUrl(selectedEmojiId)" class="w-14 h-14 object-contain drop-shadow-lg" />
-        </div>
-        <div v-for="id in 12" :key="id" @mouseenter="handleEmojiHover(id)" class="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out cursor-pointer hover:scale-125 z-10" :style="getOrbitStyle(id - 1, 72)" :class="{ 'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId }">
-          <div class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden"><img :src="getEmojiUrl(id)" class="w-7 h-7 object-contain" /></div>
+      <!-- [重点] 表情包旋转轨道容器 -->
+      <div class="absolute inset-0 pointer-events-none overflow-visible z-30 w-full h-full">
+        <div
+          v-for="(item, index) in emojiQueue"
+          :key="item.uid"
+          class="absolute w-9 h-9 rounded-full border-2 border-blue-400/60 bg-white/20 backdrop-blur-md shadow-lg overflow-hidden pointer-events-auto cursor-pointer hover:scale-125 transition-none"
+          :style="getQueueStyle(index, emojiQueue.length)"
+          @click.stop="removeQueuedEmoji(index)"
+        >
+          <img :src="getEmojiUrl(item.emojiId)" class="w-full h-full object-contain" />
         </div>
       </div>
 
-      <div class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2" :class="{ 'animate-pingu-sway': isPlay }">
-        <img src="@/assets/sync/pingu_head_v2.png" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
-        <svg viewBox="0 0 100 100" class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500" :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']">
-          <path d="M22 50 A 28 28 0 0 1 78 50" fill="none" stroke="url(#headphone-gradient)" stroke-width="7" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" />
-          <rect x="12" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
-          <rect x="76" y="45" width="12" height="24" rx="6" fill="url(#headphone-gradient)" class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+      <!-- 表情选择器 (右侧弹出) -->
+      <div
+        v-if="showEmojiPicker"
+        class="absolute left-[110%] top-1/2 -translate-y-1/2 w-48 h-48 z-[70] animate-picker-pop-right"
+        @mousedown.stop
+      >
+        <div
+          class="absolute inset-0 bg-white/15 backdrop-blur-2xl rounded-full border border-white/25 shadow-[0_16px_32px_rgba(0,0,0,0.2)]"
+        ></div>
+        <div
+          @click="sendEmoji(selectedEmojiId)"
+          @mouseenter="isHoverCenter = true"
+          @mouseleave="isHoverCenter = false"
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/10 border-2 border-white/30 shadow-inner flex items-center justify-center cursor-pointer group/center transition-all duration-300 hover:scale-110 active:scale-95 z-20 overflow-hidden"
+        >
+          <img
+            :src="getEmojiUrl(selectedEmojiId)"
+            class="w-14 h-14 object-cover rounded-full drop-shadow-lg"
+          />
+        </div>
+
+        <!-- 跑马灯内圈 -->
+        <div
+          v-for="i in 10"
+          :key="'bulb-' + i"
+          class="absolute pointer-events-none z-10"
+          :style="getOrbitStyle(i - 1, 50, bulbRotation, 10, 12)"
+        >
+          <div
+            class="w-full h-full rounded-full blur-[1px] animate-pulse shadow-lg"
+            :style="{
+              backgroundColor: bulbColors[(i - 1) % bulbColors.length],
+              boxShadow: `0 0 10px ${bulbColors[(i - 1) % bulbColors.length]}`
+            }"
+          ></div>
+        </div>
+
+        <!-- 12个可选表情 -->
+        <div
+          v-for="id in 12"
+          :key="id"
+          @mouseenter="handleEmojiHover(id)"
+          @mouseleave="handleEmojiLeave"
+          class="absolute z-10 cursor-pointer"
+          :style="getOrbitStyle(id - 1, 72, wheelRotation, 12, 36)"
+          @click.stop="sendEmoji(id)"
+        >
+          <div
+            class="w-full h-full rounded-full bg-white/20 border border-white/40 shadow-sm backdrop-blur-md flex items-center justify-center overflow-hidden transition-transform duration-150"
+            :class="{
+              'opacity-30 grayscale-[0.3] scale-90': id !== selectedEmojiId,
+              'shadow-[0_0_15px_rgba(192,132,252,0.6)] scale-110':
+                marqueeIndex === id - 1 || id === selectedEmojiId
+            }"
+          >
+            <img :src="getEmojiUrl(id)" class="w-7 h-7 object-cover rounded-full" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Pingu 头像本体 -->
+      <div
+        class="relative w-16 h-16 flex items-center justify-center z-20 transition-transform duration-500 -translate-x-2"
+        :class="{ 'animate-pingu-sway': isPlay }"
+      >
+        <img
+          src="@/assets/sync/pingu_head_v2.png"
+          class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+        />
+        <svg
+          viewBox="0 0 100 100"
+          class="absolute -left-[15%] top-[-25%] w-[130%] h-[130%] pointer-events-none z-30 transition-all duration-500"
+          :class="[isPlay ? 'animate-headphone-vibrate' : '-translate-x-[1.5px]']"
+        >
+          <path
+            d="M22 50 A 28 28 0 0 1 78 50"
+            fill="none"
+            stroke="url(#headphone-gradient)"
+            stroke-width="7"
+            stroke-linecap="round"
+            class="drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]"
+          />
+          <rect
+            x="12"
+            y="45"
+            width="12"
+            height="24"
+            rx="6"
+            fill="url(#headphone-gradient)"
+            class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+          />
+          <rect
+            x="76"
+            y="45"
+            width="12"
+            height="24"
+            rx="6"
+            fill="url(#headphone-gradient)"
+            class="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+          />
         </svg>
       </div>
+
+      <!-- 浮动音符 -->
       <div class="absolute inset-0 overflow-visible pointer-events-none z-40">
-        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-left' : 'opacity-0']" style="left: 10%; top: 40%; color: #c084fc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
-        <svg viewBox="0 0 24 24" :class="['absolute w-5 h-5 fill-current mix-blend-screen', isPlay ? 'animate-note-float-right' : 'opacity-0']" style="right: 10%; top: 40%; color: #6366f1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
-        <svg viewBox="0 0 24 24" :class="['absolute w-4 h-4 fill-current mix-blend-screen', isPlay ? 'animate-note-float-top' : 'opacity-0']" style="left: 48%; top: 15%; color: #ec4899"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" /></svg>
+        <svg
+          viewBox="0 0 24 24"
+          :class="[
+            'absolute w-5 h-5 fill-current mix-blend-screen',
+            isPlay ? 'animate-note-float-left' : 'opacity-0'
+          ]"
+          style="left: 10%; top: 40%; color: #c084fc"
+        >
+          <path
+            d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"
+          />
+        </svg>
+        <svg
+          viewBox="0 0 24 24"
+          :class="[
+            'absolute w-5 h-5 fill-current mix-blend-screen',
+            isPlay ? 'animate-note-float-right' : 'opacity-0'
+          ]"
+          style="right: 10%; top: 40%; color: #6366f1"
+        >
+          <path
+            d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"
+          />
+        </svg>
+        <svg
+          viewBox="0 0 24 24"
+          :class="[
+            'absolute w-4 h-4 fill-current mix-blend-screen',
+            isPlay ? 'animate-note-float-top' : 'opacity-0'
+          ]"
+          style="left: 48%; top: 15%; color: #ec4899"
+        >
+          <path
+            d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"
+          />
+        </svg>
       </div>
     </div>
 
     <!-- 4. 完整面板模式 (展开) -->
-    <div v-else class="relative z-10 h-full flex flex-col p-4 animate-fade-in" :class="theme === 'dark' ? 'text-white' : 'text-gray-900'">
+    <div
+      v-else
+      class="relative z-10 h-full flex flex-col p-3 animate-fade-in"
+      :class="theme === 'dark' ? 'text-white' : 'text-gray-800'"
+    >
       <!-- 顶部状态栏 -->
-      <div class="flex items-center justify-between border-b border-purple-100 dark:border-white/10 pb-3 mb-4">
-        <div @mousedown="handleMouseDown" class="flex items-center space-x-2 cursor-move flex-1 h-full">
-          <div :class="['w-2.5 h-2.5 rounded-full', isSyncing ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-300']"></div>
-          <span class="text-[11px] font-black tracking-tight opacity-70 uppercase">{{ isSyncing ? t('sync.linked') : t('sync.sync') }}</span>
+      <div
+        class="flex items-center justify-between pb-2 mb-3"
+        :class="theme === 'dark' ? 'border-b border-white/5' : 'border-b border-gray-100'"
+      >
+        <div
+          @mousedown="handleMouseDown"
+          class="flex items-center space-x-1.5 cursor-move flex-1 h-full"
+        >
+          <div
+            :class="[
+              'w-2 h-2 rounded-full',
+              isSyncing ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-gray-300 dark:bg-gray-600'
+            ]"
+          ></div>
+          <span class="text-[10px] font-semibold tracking-wide opacity-60 uppercase">{{
+            isSyncing ? t('sync.linked') : t('sync.sync')
+          }}</span>
         </div>
-        <div class="flex items-center space-x-2" @mousedown.stop>
-          <button @click="toggleEmojiPicker" class="p-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 transition-all active:scale-95" :class="{ 'bg-yellow-400/40 shadow-inner': showEmojiPicker }">
-            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current text-yellow-500"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2z M12,20c-4.41,0-8-3.59-8-8s3.59-8 8-8s8,3.59,8,8 S16.41,20,12,20z M7,9.5C7,8.67 7.67,8 8.5,8S10,8.67 10,9.5S9.33,11 8.5,11S7,10.33 7,9.5z M14,9.5c0-0.83 0.67-1.5 1.5-1.5 s1.5,0.67 1.5,1.5s-0.67,1.5-1.5,1.5S14,10.33 14,9.5z M12,17.5c-2.33,0-4.31-1.46-5.11-3.5h10.22C16.31,16.04 14.33,17.5 12,17.5z" /></svg>
-          </button>
-          <button @click="toggleSettings" class="p-1.5 rounded-lg hover:bg-purple-500/10 transition-all active:scale-95" :class="{ 'bg-purple-500/20 shadow-inner': isSetting }">
-            <svg viewBox="0 0 24 24" class="w-5 h-5 flex items-center justify-center">
+        <div class="flex items-center space-x-1" @mousedown.stop>
+          <button
+            @click="toggleSettings"
+            class="p-1 rounded-md hover:bg-gray-500/10 transition-all active:scale-95"
+            :class="{ 'bg-purple-500/15': isSetting }"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4">
               <circle fill="url(#note-gradient)" cx="6" cy="18" r="3.5" />
               <circle fill="url(#note-gradient)" cx="18" cy="18" r="3.5" />
               <rect x="7.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
               <rect x="19.5" y="6" width="2.2" height="12" fill="url(#note-gradient)" />
-              <path fill="none" stroke="url(#ekg-gradient)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M8,10 L11,11 L12.5,6 L14,13 L16,9 L19,11" />
+              <path
+                fill="none"
+                stroke="url(#ekg-gradient)"
+                stroke-width="1.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8,7 L11,8 L12.5,3 L14,10 L16,6 L19,8"
+              />
             </svg>
           </button>
-          <button @click="toggleMinimize" class="p-1 hover:translate-y-[-2px] transition-all"><svg viewBox="0 0 24 24" class="w-4 h-4 fill-none stroke-current stroke-2" :class="theme === 'dark' ? 'stroke-white' : 'stroke-gray-900'"><path d="M18 15l-6-6-6 6" /></svg></button>
+          <button
+            @click="toggleMinimize"
+            class="p-1 rounded-md hover:bg-gray-500/10 transition-all active:scale-95"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="w-3.5 h-3.5 fill-none stroke-current stroke-2"
+              :class="theme === 'dark' ? 'stroke-white/70' : 'stroke-gray-500'"
+            >
+              <path d="M18 15l-6-6-6 6" />
+            </svg>
+          </button>
         </div>
       </div>
 
       <!-- 内容区 -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center w-full">
-        <!-- 1. 表情宫格 - 3x3 滚动布局 -->
-        <div v-if="showEmojiPicker" class="grid grid-cols-3 gap-4 py-4 w-full px-8 animate-panel-pop overflow-y-auto custom-scrollbar max-h-[260px]">
-          <div v-for="id in 12" :key="id" @click="sendEmoji(id)" class="aspect-square rounded-xl cursor-pointer hover:scale-110 transition-all border border-purple-100 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 active:scale-90 flex items-center justify-center min-h-[60px]"><img :src="getEmojiUrl(id)" class="w-[75%] h-[75%] object-contain" /></div>
+      <div
+        class="flex-1 overflow-y-auto custom-scrollbar relative z-10 flex flex-col items-center justify-center w-full"
+      >
+        <!-- 服务器设置 -->
+        <div
+          v-if="isSetting"
+          class="w-full flex flex-col items-center justify-center space-y-3 px-2"
+        >
+          <div class="text-[10px] font-semibold tracking-widest opacity-50 uppercase">
+            {{ t('sync.endpoint') }}
+          </div>
+          <input
+            v-model="serverUrlInput"
+            type="text"
+            @mousedown.stop
+            placeholder="https://..."
+            class="w-full rounded-lg px-3 py-2 text-[11px] text-center outline-none transition-all"
+            :class="
+              theme === 'dark'
+                ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-purple-400/50'
+                : 'bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-300 focus:border-purple-300'
+            "
+          />
+          <button
+            @click="saveServerUrl"
+            class="w-full py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+            :class="
+              theme === 'dark'
+                ? 'bg-purple-500/80 text-white hover:bg-purple-500'
+                : 'bg-gray-900 text-white hover:bg-gray-800'
+            "
+          >
+            {{ t('sync.save') }}
+          </button>
         </div>
 
-        <!-- 2. 服务器设置面板 -->
-        <div v-else-if="isSetting" class="w-full flex flex-col items-center space-y-6 pt-4 px-4">
-          <div class="w-full text-center">
-            <div
-              class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.1em] whitespace-nowrap w-full text-center mx-auto"
-            >
-              {{ t('sync.endpoint') }}
+        <!-- 同步主面板 -->
+        <div v-else class="w-full flex flex-col items-center justify-center px-2">
+          <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-3">
+            <div class="text-[10px] font-semibold tracking-widest opacity-50 uppercase">
+              {{ t('sync.code') }}
             </div>
-          </div>
-          <div class="w-full flex justify-center">
             <input
-              v-model="serverUrlInput"
+              v-model="roomInput"
               type="text"
               @mousedown.stop
-              placeholder="https://..."
-              class="w-[190px] border-2 rounded-xl px-4 py-3 text-[12px] font-bold text-center outline-none transition-all bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white shadow-sm mx-auto"
+              maxlength="8"
+              placeholder=""
+              class="w-full rounded-lg px-2 py-2.5 text-lg text-center font-black tracking-[0.4em] outline-none transition-all"
+              :class="
+                theme === 'dark'
+                  ? 'bg-white/5 border border-white/10 text-white focus:border-purple-400/50'
+                  : 'bg-gray-50 border border-gray-200 text-gray-800 focus:border-purple-300'
+              "
             />
-          </div>
-          <div class="w-full flex justify-center">
-            <button
-              @click="saveServerUrl"
-              class="w-[190px] py-3.5 bg-purple-600 text-white rounded-xl text-[11px] font-black uppercase shadow-lg active:scale-95 transition-all mx-auto"
-            >
-              {{ t('sync.save') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. 同步主面板 -->
-        <div v-else class="w-full flex flex-col items-center space-y-6 pt-4 px-4">
-          <div v-if="!isSyncing" class="w-full flex flex-col items-center space-y-6">
-            <div class="w-full text-center">
-              <div
-                class="text-[13px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-tight leading-relaxed w-full text-center mx-auto whitespace-nowrap"
+            <div class="grid grid-cols-2 gap-2 w-full">
+              <button
+                @click="handleJoin('private')"
+                class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                :class="
+                  theme === 'dark'
+                    ? 'bg-white text-black hover:bg-gray-100'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                "
               >
-                {{ t('sync.code') }}
-              </div>
-            </div>
-            <div class="w-full flex justify-center">
-              <input
-                v-model="roomInput"
-                type="text"
-                @mousedown.stop
-                maxlength="8"
-                placeholder=""
-                class="w-[190px] border-2 rounded-xl px-2 py-4 text-2xl text-center font-black tracking-[0.6em] bg-white/70 border-purple-50 text-gray-900 focus:border-purple-200 dark:bg-black/30 dark:border-white/10 dark:text-white outline-none shadow-sm mx-auto"
-              />
-            </div>
-            <div class="w-full flex justify-center">
-              <div class="grid grid-cols-2 gap-4 w-[190px] mx-auto">
-                <button
-                  @click="handleJoin('private')"
-                  class="py-4 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl text-[10px] font-black uppercase shadow-xl active:scale-95 transition-all"
-                >
-                  {{ t('sync.privateRoom') }}
-                </button>
-                <button
-                  @click="handleJoin('public')"
-                  class="py-4 bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all"
-                >
-                  {{ t('sync.publicRoom') }}
-                </button>
-              </div>
+                {{ t('sync.privateRoom') }}
+              </button>
+              <button
+                @click="handleJoin('public')"
+                class="py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                :class="
+                  theme === 'dark'
+                    ? 'bg-white/10 text-white hover:bg-white/15'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                "
+              >
+                {{ t('sync.publicRoom') }}
+              </button>
             </div>
           </div>
-          <div
-            v-else
-            class="flex flex-col items-center justify-center space-y-4 py-10 rounded-2xl border-2 bg-white/80 border-purple-100 dark:bg-black/40 dark:border-white/20 backdrop-blur-xl w-full"
-          >
-            <div
-              class="text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase tracking-[0.4em] w-full text-center"
-            >
+          <div v-else class="w-full flex flex-col items-center space-y-3 py-6">
+            <div class="text-[9px] font-semibold tracking-[0.3em] opacity-40 uppercase">
               {{ t('sync.quantumRoom') }}
             </div>
-            <div class="text-4xl font-mono font-black tracking-[0.2em] text-gray-900 dark:text-white w-full text-center">
+            <div
+              class="text-2xl font-mono font-black tracking-[0.15em]"
+              :class="theme === 'dark' ? 'text-white' : 'text-gray-900'"
+            >
               {{ roomId }}
             </div>
             <button
               @click="leaveRoom"
-              class="text-[11px] text-red-500 font-black uppercase mt-4 hover:scale-110 transition-transform underline underline-offset-4"
+              class="text-[10px] font-semibold opacity-50 hover:opacity-100 transition-opacity mt-1"
+              :class="theme === 'dark' ? 'text-red-400' : 'text-red-500'"
             >
               {{ t('sync.disconnect') }}
             </button>
@@ -223,11 +418,10 @@
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+
 import { usePlayerStore } from '@/store/modules/player';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useSyncStore } from '@/store/modules/sync';
-
-import pinguHeadUrl from '@/assets/sync/pingu_head_v2.png';
 
 const { t } = useI18n();
 const syncStore = useSyncStore();
@@ -244,150 +438,553 @@ const serverUrlInput = ref('');
 const showEmojiPicker = ref(false);
 const activeBubbles = ref<any[]>([]);
 const selectedEmojiId = ref(1);
-const emojiQueue = ref<number[]>([]);
+const isHoverCenter = ref(false);
+const isHoverWheel = ref(false);
+const marqueeIndex = ref(0);
+const wheelRotation = ref(0);
+const bulbRotation = ref(0);
+const emojiQueue = ref<{ uid: number; emojiId: number }[]>([]);
+const queueRotation = ref(0);
+
+const bulbColors = [
+  '#FFD700',
+  '#FF69B4',
+  '#00FF7F',
+  '#00BFFF',
+  '#FF4500',
+  '#FF00FF',
+  '#7FFF00',
+  '#1E90FF',
+  '#FF1493',
+  '#FFFF00'
+];
+
+let randomTimer: any = null;
+let marqueeTimer: any = null;
+let queueTimer: any = null;
+
+const startQueueRotation = () => {
+  if (queueTimer) return;
+  const animate = () => {
+    queueRotation.value += 0.5;
+    queueTimer = requestAnimationFrame(animate);
+  };
+  queueTimer = requestAnimationFrame(animate);
+};
+
+const stopQueueRotation = () => {
+  if (queueTimer) cancelAnimationFrame(queueTimer);
+  queueTimer = null;
+};
+
+watch(
+  isMinimized,
+  (val) => {
+    if (val) {
+      startQueueRotation();
+    } else {
+      stopQueueRotation();
+    }
+  },
+  { immediate: true }
+);
+
+let pickerAnimationFrame: number | null = null;
+
+const startEmojiPickerEffects = () => {
+  if (marqueeTimer) clearInterval(marqueeTimer);
+  marqueeTimer = setInterval(() => {
+    marqueeIndex.value = (marqueeIndex.value + 1) % 12;
+  }, 100);
+
+  const animate = () => {
+    wheelRotation.value -= 0.25;
+    if (wheelRotation.value <= -360) wheelRotation.value += 360;
+
+    bulbRotation.value -= 0.7;
+    if (bulbRotation.value <= -360) bulbRotation.value += 360;
+
+    pickerAnimationFrame = requestAnimationFrame(animate);
+  };
+  if (!pickerAnimationFrame) animate();
+
+  if (randomTimer) clearInterval(randomTimer);
+  randomTimer = setInterval(() => {
+    if (!isHoverCenter.value && !isHoverWheel.value) {
+      selectedEmojiId.value = Math.floor(Math.random() * 12) + 1;
+    }
+  }, 800);
+};
+
+const stopEmojiPickerEffects = () => {
+  if (marqueeTimer) clearInterval(marqueeTimer);
+  if (pickerAnimationFrame) cancelAnimationFrame(pickerAnimationFrame);
+  if (randomTimer) clearInterval(randomTimer);
+  marqueeTimer = null;
+  pickerAnimationFrame = null;
+  randomTimer = null;
+};
+
+watch(showEmojiPicker, (val) => {
+  val ? startEmojiPickerEffects() : stopEmojiPickerEffects();
+});
 
 const position = ref({ x: 16, y: 96 });
 const isDragging = ref(false);
-const dragOffset = ref({ x: 0, y: 0 });
 let dragStartTime = 0;
 
-const panelStyle = computed(() => {
+const panelStyle = computed(() => ({
+  left: `${position.value.x}px`,
+  bottom: `${position.value.y}px`,
+  width: isMinimized.value ? '96px' : '220px',
+  height: isMinimized.value ? '96px' : '260px',
+  minWidth: isMinimized.value ? '96px' : '220px',
+  visibility: 'visible' as const,
+  opacity: '1'
+}));
+
+const getOrbitStyle = (
+  index: number,
+  radius: number,
+  offset: number,
+  total: number,
+  itemSize: number = 36
+) => {
+  const angleDeg = (index * 360) / total + offset;
+  const angleRad = (angleDeg * Math.PI) / 180;
+  // 选择器容器是 w-48 h-48 = 192x192px，中心在 (96, 96)
+  const cx = 96;
+  const cy = 96;
+  const x = cx + Math.sin(angleRad) * radius;
+  const y = cy - Math.cos(angleRad) * radius;
+  const half = itemSize / 2;
   return {
-    left: `${position.value.x}px`,
-    bottom: `${position.value.y}px`,
-    width: isMinimized.value ? '96px' : '260px',
-    height: isMinimized.value ? '96px' : '340px',
-    display: 'flex',
-    visibility: 'visible',
-    opacity: '1'
-  };
-});
-
-const playBubbleSound = (isPop = true) => {
-  try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    const startFreq = isPop ? 800 : 400;
-    const endFreq = isPop ? 1200 : 200;
-    osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime + 0.1);
-  } catch (e) { console.warn('Audio play failed:', e); }
-};
-
-const getOrbitStyle = (index: number, radius: number = 95) => {
-  const angle = (index * 360) / 12;
-  return { transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(-${angle}deg)` };
-};
-
-const getQueuePosition = (index: number) => {
-  const angles = [-45, -15, 15, 45, 0];
-  const distances = [50, 60, 55, 52, 65];
-  const angle = angles[index % 5];
-  const dist = distances[index % 5];
-  return {
-    left: `calc(50% + ${Math.sin(angle * Math.PI / 180) * dist}px)`,
-    top: `calc(-10% - ${Math.cos(angle * Math.PI / 180) * dist}px)`,
-    transitionDelay: `${index * 0.1}s`
+    position: 'absolute' as const,
+    left: `${x}px`,
+    top: `${y}px`,
+    width: `${itemSize}px`,
+    height: `${itemSize}px`,
+    marginLeft: `-${half}px`,
+    marginTop: `-${half}px`,
+    transition: 'none'
   };
 };
 
-const handleEmojiHover = (id: number) => { selectedEmojiId.value = id; };
-const getEmojiUrl = (id: number) => new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
+const getQueueStyle = (index: number, total: number) => {
+  const radius = 95;
+  const effectiveTotal = Math.max(total, 1);
+  const angleStep = (2 * Math.PI) / effectiveTotal;
 
-const sendEmoji = (id: number) => { syncStore.sendSync('send_emoji', { emojiId: id }); triggerBubble(id); };
+  // Rotation in Radians
+  const rotationRad = (queueRotation.value * Math.PI) / 180;
+
+  // Final angle: start from -PI/2 (top) + index step + rotation
+  const angle = -Math.PI / 2 + index * angleStep - rotationRad;
+
+  // Center of the 96x96 container
+  const cx = 48;
+  const cy = 48;
+
+  const x = cx + Math.cos(angle) * radius;
+  const y = cy + Math.sin(angle) * radius;
+
+  return {
+    position: 'absolute' as const,
+    left: `${x}px`,
+    top: `${y}px`,
+    width: '36px',
+    height: '36px',
+    marginLeft: '-18px', // Center the bubble (half width)
+    marginTop: '-18px', // Center the bubble (half height)
+    zIndex: 100 + index,
+    transition: 'none' // Important: disable transition for smooth requestAnimationFrame
+  };
+};
+
+const handleEmojiHover = (id: number) => {
+  isHoverWheel.value = true;
+  selectedEmojiId.value = id;
+};
+const handleEmojiLeave = () => {
+  isHoverWheel.value = false;
+};
+const getEmojiUrl = (id: number) =>
+  new URL(`../assets/sync/emojis/emoji-${id}.png`, import.meta.url).href;
+
+const sendEmoji = (id: number) => {
+  syncStore.sendSync('send_emoji', { emojiId: id });
+  playSendSound();
+};
 
 watch(receivedEmoji, (newVal) => {
   if (newVal) {
-    emojiQueue.value.push(newVal.id);
-    triggerBubble(newVal.id); // 收到消息时立即触发气泡特效
-    playBubbleSound(true);
+    emojiQueue.value.push({ uid: Date.now() + Math.random(), emojiId: newVal.id });
+    if (emojiQueue.value.length > 10) emojiQueue.value.shift();
+    triggerBubble(newVal.id);
+    playReceiveSound();
   }
 });
 
+const bubbleGradients = [
+  'linear-gradient(135deg, rgba(244,114,182,0.7), rgba(251,191,36,0.4))',
+  'linear-gradient(135deg, rgba(96,165,250,0.7), rgba(52,211,153,0.4))',
+  'linear-gradient(135deg, rgba(167,139,250,0.7), rgba(244,114,182,0.4))',
+  'linear-gradient(135deg, rgba(251,146,60,0.7), rgba(250,204,21,0.4))',
+  'linear-gradient(135deg, rgba(52,211,153,0.7), rgba(56,189,248,0.4))',
+  'linear-gradient(135deg, rgba(248,113,113,0.7), rgba(167,139,250,0.4))',
+  'linear-gradient(135deg, rgba(56,189,248,0.7), rgba(192,132,252,0.4))',
+  'linear-gradient(135deg, rgba(250,204,21,0.7), rgba(251,146,60,0.4))'
+];
+let bubbleColorIdx = 0;
+
 const triggerBubble = (emojiId: number) => {
   const id = Date.now() + Math.random();
-  const bubble = { id, emojiId, x: 40, y: 40, drift: (Math.random() - 0.5) * 150 };
-  activeBubbles.value.push(bubble);
-  setTimeout(() => { activeBubbles.value = activeBubbles.value.filter(b => b.id !== id); }, 3500);
+  // 随机散开位置（相对于 Pingu 中心上方区域）
+  const x = 10 + Math.random() * 60; // 10~70px from left
+  const y = 50 + Math.random() * 80; // 50~130px from bottom (above Pingu)
+  const ringGradient = bubbleGradients[bubbleColorIdx % bubbleGradients.length];
+  bubbleColorIdx++;
+  activeBubbles.value.push({ id, emojiId, x, y, ringGradient });
+};
+
+const getBubbleStyle = (idx: number) => {
+  const total = activeBubbles.value.length;
+  const age = total - 1 - idx; // 0 = newest
+  // 最新的最大 (52px), 越旧越小, 最小 24px
+  const size = Math.max(24, 52 - age * 4);
+  const bubble = activeBubbles.value[idx];
+  return {
+    left: bubble.x + 'px',
+    bottom: bubble.y + 'px',
+    width: size + 'px',
+    height: size + 'px',
+    zIndex: 100 + total - age,
+    transition: 'width 0.3s, height 0.3s',
+    '--float-x': ((idx % 3) - 1) * 3 + 'px',
+    '--float-y': 4 + (idx % 2) * 2 + 'px',
+    animationDelay: ((idx * 0.3) % 2) + 's',
+    animationDuration: 2.5 + (idx % 3) * 0.5 + 's'
+  };
+};
+
+const destroyBubble = (id: number) => {
+  const bubble = activeBubbles.value.find((b) => b.id === id);
+  if (bubble && !bubble.popping) {
+    bubble.popping = true;
+    playPopSound();
+    setTimeout(() => {
+      const idx = activeBubbles.value.findIndex((b) => b.id === id);
+      if (idx !== -1) activeBubbles.value.splice(idx, 1);
+    }, 300);
+  }
+};
+
+const removeQueuedEmoji = (index: number) => {
+  emojiQueue.value.splice(index, 1);
 };
 
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
-  isDragging.value = true; dragStartTime = Date.now();
-  dragOffset.value = { x: e.clientX - position.value.x, y: window.innerHeight - e.clientY - position.value.y };
+  e.preventDefault();
+  isDragging.value = true;
+  dragStartTime = Date.now();
+  const startX = e.clientX,
+    startY = e.clientY,
+    initialX = position.value.x,
+    initialY = position.value.y;
   const handleMouseMove = (moveEvent: MouseEvent) => {
-    if (isDragging.value) position.value = { x: moveEvent.clientX - dragOffset.value.x, y: window.innerHeight - moveEvent.clientY - dragOffset.value.y };
+    if (!isDragging.value) return;
+    const deltaX = moveEvent.clientX - startX,
+      deltaY = moveEvent.clientY - startY;
+    position.value = { x: Math.max(0, initialX + deltaX), y: Math.max(0, initialY - deltaY) };
   };
-  const handleMouseUp = () => { setTimeout(() => { isDragging.value = false; }, 50); document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp); };
-  document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
+  const handleMouseUp = () => {
+    isDragging.value = false;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
 };
 
-const handleBallClick = () => { 
-  const duration = Date.now() - dragStartTime;
-  if (duration < 200) {
+const handleBallClick = () => {
+  if (Date.now() - dragStartTime < 200) {
     if (emojiQueue.value.length > 0) {
-      const id = emojiQueue.value.shift();
-      if (id) { triggerBubble(id); playBubbleSound(false); }
+      const item = emojiQueue.value.shift();
+      if (item) triggerBubble(item.emojiId);
     } else if (showEmojiPicker.value) {
       showEmojiPicker.value = false;
     } else {
       toggleMinimize();
     }
-  } 
+  }
 };
 
-const toggleEmojiPicker = () => { showEmojiPicker.value = !showEmojiPicker.value; if (showEmojiPicker.value) isSetting.value = false; };
-const toggleSettings = () => { isSetting.value = !isSetting.value; if (isSetting.value) showEmojiPicker.value = false; };
-onMounted(() => { 
+const toggleEmojiPicker = () => {
+  showEmojiPicker.value = !showEmojiPicker.value;
+  if (showEmojiPicker.value) isSetting.value = false;
+};
+const toggleSettings = () => {
+  isSetting.value = !isSetting.value;
+  if (isSetting.value) showEmojiPicker.value = false;
+};
+onMounted(() => {
   serverUrlInput.value = window.localStorage.getItem('SYNC_SERVER_URL') || '';
 });
-const toggleMinimize = () => { isMinimized.value = !isMinimized.value; isSetting.value = false; showEmojiPicker.value = false; };
-const saveServerUrl = () => { window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value); isSetting.value = false; window.location.reload(); };
-const handleJoin = (type: 'private' | 'public') => { if (!roomInput.value) roomInput.value = Math.random().toString(36).substring(7).toUpperCase(); syncStore.initSync(roomInput.value, type); };
-const leaveRoom = () => { syncStore.leaveRoom(); roomInput.value = ''; };
+const toggleMinimize = () => {
+  isMinimized.value = !isMinimized.value;
+  isSetting.value = false;
+  showEmojiPicker.value = false;
+};
+const saveServerUrl = () => {
+  window.localStorage.setItem('SYNC_SERVER_URL', serverUrlInput.value);
+  isSetting.value = false;
+  window.location.reload();
+};
+const handleJoin = (type: 'private' | 'public') => {
+  if (!roomInput.value) roomInput.value = Math.random().toString(36).substring(7).toUpperCase();
+  syncStore.initSync(roomInput.value, type);
+};
+const leaveRoom = () => {
+  syncStore.leaveRoom();
+  roomInput.value = '';
+};
+
+// === 音效系统 (Web Audio API) ===
+let audioCtx: AudioContext | null = null;
+const getAudioCtx = () => {
+  if (!audioCtx) audioCtx = new AudioContext();
+  return audioCtx;
+};
+
+// 发送表情：柔和上行连音 ✨
+const playSendSound = () => {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    [880, 1100, 1320].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t + i * 0.08);
+      gain.gain.setValueAtTime(0, t + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.06, t + i * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.2);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t + i * 0.08);
+      osc.stop(t + i * 0.08 + 0.2);
+    });
+  } catch {
+    /* empty */
+  }
+};
+
+// 收到表情：轻柔水滴声 💧
+const playReceiveSound = () => {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(1000, t + 0.1);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.3);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.08, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.3);
+  } catch {
+    /* empty */
+  }
+};
+
+// 点击消失：随机柔和音符 🎵
+const pentatonicNotes = [523, 587, 659, 784, 880, 1047, 1175, 1319];
+const playPopSound = () => {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const freq = pentatonicNotes[Math.floor(Math.random() * pentatonicNotes.length)];
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.07, t + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.3);
+  } catch {
+    /* empty */
+  }
+};
 </script>
 
 <style scoped>
-.dragging-active { transition: none !important; }
-@keyframes bubble-float {
-  0% { transform: translateY(0) scale(0.3) rotate(0); opacity: 0; }
-  15% { opacity: 1; transform: translateY(-30px) scale(1.1) rotate(15deg); }
-  100% { transform: translateY(-350px) translateX(var(--drift)) scale(0.8) rotate(-30deg); opacity: 0; }
+.sync-room-control {
+  box-sizing: border-box;
 }
-.bubble-animation { animation: bubble-float 3.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; }
-@keyframes picker-pop-right { from { opacity: 0; transform: translateY(-50%) scale(0.7) translateX(-20px); } to { opacity: 1; transform: translateY(-50%) scale(1) translateX(0); } }
-.animate-ball-pop-right { animation: picker-pop-right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes picker-fade-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-.animate-picker-fade-in { animation: picker-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } }
-.animate-breathe { animation: breathe 3s infinite ease-in-out; }
-@keyframes heart-float { 0% { transform: translateY(0) scale(0) rotate(0deg); opacity: 0; } 20% { opacity: 0.8; } 100% { transform: translateY(-40px) scale(1.2) rotate(20deg); opacity: 0; } }
-.animate-heart-float { animation: heart-float 2.5s infinite ease-out; }
-@keyframes queue-hover { 0%, 100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-5px); } }
-.animate-queue-hover { animation: queue-hover 2s infinite ease-in-out; }
-@keyframes note-float-left { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-40px, -60px) rotate(-45deg) scale(1.2); opacity: 0; } }
-@keyframes note-float-right { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(40px, -60px) rotate(45deg) scale(1.2); opacity: 0; } }
-@keyframes note-float-top { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(0, -80px) rotate(15deg) scale(1.5); opacity: 0; } }
-
-.animate-note-float-left { animation: note-float-left 3s infinite ease-out; }
-.animate-note-float-right { animation: note-float-right 3.5s infinite ease-out; }
-.animate-note-float-top { animation: note-float-top 2.5s infinite ease-out; }
-
-.custom-scrollbar::-webkit-scrollbar { width: 0px; }
-.custom-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-@keyframes headphone-vibrate { 0%, 100% { transform: translateX(-2px) scale(1); } 50% { transform: translateX(-2px) scale(1.08); } }
-@keyframes pingu-sway { 0%, 100% { transform: rotate(-3deg) translateY(2px); } 50% { transform: rotate(3deg) translateY(-2px); } }
-.animate-headphone-vibrate { animation: headphone-vibrate 0.4s infinite ease-in-out; transform-origin: center; }
-.animate-pingu-sway { animation: pingu-sway 0.8s infinite ease-in-out; }
-.animate-fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.panel-transition {
+  transition:
+    width 700ms ease-in-out,
+    height 700ms ease-in-out,
+    border-radius 700ms ease-in-out,
+    box-shadow 700ms ease-in-out;
+}
+.dragging-active {
+  transition: none !important;
+}
+@keyframes bubble-pop-in {
+  0% {
+    transform: scale(0) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+.bubble-pop-in {
+  animation: bubble-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes bubble-pop-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0) rotate(30deg);
+    opacity: 0;
+  }
+}
+.bubble-pop-out {
+  animation: bubble-pop-out 0.3s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes bubble-float-idle {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(var(--float-x, 2px), calc(-1 * var(--float-y, 4px)));
+  }
+}
+.bubble-float-idle {
+  animation:
+    bubble-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    bubble-float-idle 3s ease-in-out infinite 0.4s;
+}
+@keyframes picker-pop-right {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.7) translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) translateX(0);
+  }
+}
+.animate-pingu-sway {
+  animation: pingu-sway 0.8s infinite ease-in-out;
+}
+@keyframes pingu-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(2px);
+  }
+  50% {
+    transform: rotate(3deg) translateY(-2px);
+  }
+}
+@keyframes note-float-left {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-40px, -60px) rotate(-45deg) scale(1.2);
+    opacity: 0;
+  }
+}
+.animate-note-float-left {
+  animation: note-float-left 3s infinite ease-out;
+}
+@keyframes note-float-right {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(40px, -60px) rotate(45deg) scale(1.2);
+    opacity: 0;
+  }
+}
+.animate-note-float-right {
+  animation: note-float-right 3.2s infinite ease-out 0.5s;
+}
+@keyframes note-float-top {
+  0% {
+    transform: translate(0, 0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, -80px) rotate(10deg) scale(1.2);
+    opacity: 0;
+  }
+}
+.animate-note-float-top {
+  animation: note-float-top 2.8s infinite ease-out 1s;
+}
+@keyframes headphone-vibrate {
+  0%,
+  100% {
+    transform: translateX(-2px) scale(1);
+  }
+  50% {
+    transform: translateX(-2px) scale(1.08);
+  }
+}
+.animate-headphone-vibrate {
+  animation: headphone-vibrate 0.4s infinite ease-in-out;
+  transform-origin: center;
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.custom-scrollbar {
+  scrollbar-width: none;
+}
 </style>

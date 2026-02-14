@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { io, Socket } from 'socket.io-client';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import { audioService } from '@/services/audioService';
+
 import { usePlayerStore } from './player';
 
 export const useSyncStore = defineStore('sync', () => {
@@ -19,7 +20,8 @@ export const useSyncStore = defineStore('sync', () => {
   // 初始化连接
   const initSync = (targetRoomId: string, type: 'private' | 'public' = 'private') => {
     // 自动检测环境：如果是本地开发则用本地IP，否则可以手动指定
-    const serverUrl = window.localStorage.getItem('SYNC_SERVER_URL') || 'http://101.200.139.109:3000';
+    const serverUrl =
+      window.localStorage.getItem('SYNC_SERVER_URL') || 'http://101.200.139.109:3000';
 
     socket.value = io(serverUrl, {
       query: { roomId: targetRoomId, userId: userId.value }
@@ -36,7 +38,7 @@ export const useSyncStore = defineStore('sync', () => {
     // 监听来自他人的同步指令
     socket.value.on('apply_sync', async (data: any) => {
       console.log('[Sync] Receiving remote operation:', data.operation);
-      
+
       const operation = data.operation;
       const remoteData = data.data;
 
@@ -45,7 +47,7 @@ export const useSyncStore = defineStore('sync', () => {
         // 传入 isRemote = true，防止二次广播导致死循环
         if (remoteData?.music) {
           await playerStore.handlePlayMusic(remoteData.music, true, true);
-          
+
           // 如果远端带了进度，进行对齐
           if (remoteData?.currentTime) {
             setTimeout(() => {
