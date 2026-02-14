@@ -92,17 +92,7 @@
       class="relative z-20 w-full h-full flex items-center justify-center cursor-pointer group overflow-visible transition-transform duration-300 hover:scale-105"
     >
       <!-- [重点] 表情包旋转轨道容器 -->
-      <div class="absolute inset-0 pointer-events-none overflow-visible z-30 w-full h-full">
-        <div
-          v-for="(item, index) in emojiQueue"
-          :key="item.uid"
-          class="absolute w-9 h-9 rounded-full border-2 border-blue-400/60 bg-white/20 backdrop-blur-md shadow-lg overflow-hidden pointer-events-auto cursor-pointer hover:scale-125 transition-none"
-          :style="getQueueStyle(index, emojiQueue.length)"
-          @click.stop="removeQueuedEmoji(index)"
-        >
-          <img :src="getEmojiUrl(item.emojiId)" class="w-full h-full object-contain" />
-        </div>
-      </div>
+      <div class="absolute inset-0 pointer-events-none overflow-visible z-30 w-full h-full"></div>
 
       <!-- 表情选择器 (右侧弹出) -->
       <div
@@ -443,8 +433,6 @@ const isHoverWheel = ref(false);
 const marqueeIndex = ref(0);
 const wheelRotation = ref(0);
 const bulbRotation = ref(0);
-const emojiQueue = ref<{ uid: number; emojiId: number }[]>([]);
-const queueRotation = ref(0);
 
 const bulbColors = [
   '#FFD700',
@@ -461,33 +449,6 @@ const bulbColors = [
 
 let randomTimer: any = null;
 let marqueeTimer: any = null;
-let queueTimer: any = null;
-
-const startQueueRotation = () => {
-  if (queueTimer) return;
-  const animate = () => {
-    queueRotation.value += 0.5;
-    queueTimer = requestAnimationFrame(animate);
-  };
-  queueTimer = requestAnimationFrame(animate);
-};
-
-const stopQueueRotation = () => {
-  if (queueTimer) cancelAnimationFrame(queueTimer);
-  queueTimer = null;
-};
-
-watch(
-  isMinimized,
-  (val) => {
-    if (val) {
-      startQueueRotation();
-    } else {
-      stopQueueRotation();
-    }
-  },
-  { immediate: true }
-);
 
 let pickerAnimationFrame: number | null = null;
 
@@ -570,37 +531,6 @@ const getOrbitStyle = (
   };
 };
 
-const getQueueStyle = (index: number, total: number) => {
-  const radius = 95;
-  const effectiveTotal = Math.max(total, 1);
-  const angleStep = (2 * Math.PI) / effectiveTotal;
-
-  // Rotation in Radians
-  const rotationRad = (queueRotation.value * Math.PI) / 180;
-
-  // Final angle: start from -PI/2 (top) + index step + rotation
-  const angle = -Math.PI / 2 + index * angleStep - rotationRad;
-
-  // Center of the 96x96 container
-  const cx = 48;
-  const cy = 48;
-
-  const x = cx + Math.cos(angle) * radius;
-  const y = cy + Math.sin(angle) * radius;
-
-  return {
-    position: 'absolute' as const,
-    left: `${x}px`,
-    top: `${y}px`,
-    width: '36px',
-    height: '36px',
-    marginLeft: '-18px', // Center the bubble (half width)
-    marginTop: '-18px', // Center the bubble (half height)
-    zIndex: 100 + index,
-    transition: 'none' // Important: disable transition for smooth requestAnimationFrame
-  };
-};
-
 const handleEmojiHover = (id: number) => {
   isHoverWheel.value = true;
   selectedEmojiId.value = id;
@@ -618,8 +548,6 @@ const sendEmoji = (id: number) => {
 
 watch(receivedEmoji, (newVal) => {
   if (newVal) {
-    emojiQueue.value.push({ uid: Date.now() + Math.random(), emojiId: newVal.id });
-    if (emojiQueue.value.length > 10) emojiQueue.value.shift();
     triggerBubble(newVal.id);
     playReceiveSound();
   }
@@ -679,10 +607,6 @@ const destroyBubble = (id: number) => {
   }
 };
 
-const removeQueuedEmoji = (index: number) => {
-  emojiQueue.value.splice(index, 1);
-};
-
 const handleMouseDown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button') || target.closest('input')) return;
@@ -710,10 +634,7 @@ const handleMouseDown = (e: MouseEvent) => {
 
 const handleBallClick = () => {
   if (Date.now() - dragStartTime < 200) {
-    if (emojiQueue.value.length > 0) {
-      const item = emojiQueue.value.shift();
-      if (item) triggerBubble(item.emojiId);
-    } else if (showEmojiPicker.value) {
+    if (showEmojiPicker.value) {
       showEmojiPicker.value = false;
     } else {
       toggleMinimize();
